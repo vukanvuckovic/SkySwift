@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    // "types": ["jest"],
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -8,7 +9,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -20,8 +21,16 @@
     ],
     "paths": {
       "@/*": ["./src/*"]
-    }
+      // "@/components/*": ["./src/components/*"]
+    },
+    "baseUrl": "./"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/lib/features/bookingSlice.test.js"
+  ],
   "exclude": ["node_modules"]
 }
