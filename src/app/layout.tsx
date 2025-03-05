@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "@/components/LayoutWrapper";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const dmSerifDisplay = DM_Serif_Display({
+  variable: "--font-dm-serif",
   subsets: ["latin"],
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
@@ -27,14 +29,14 @@ export default function RootLayout({
       lang="en"
       className="scroll-smooth"
     >
-      {/* <head>
+      <head>
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+          content="width=device-width, initial-scale=1"
         />
-      </head> */}
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overscroll-none overflow-x-clip`}
+        className={`${dmSans.variable} ${dmSerifDisplay.variable} antialiased overscroll-none overflow-x-clip`}
       >
         <LayoutWrapper>{children}</LayoutWrapper>
       </body>

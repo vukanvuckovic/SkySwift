@@ -1,91 +1,58 @@
-import { TickCircle } from "iconsax-react";
+import { Check } from "lucide-react";
 import React from "react";
+import AuthComponent from "./AuthComponent";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
+
+const BENEFITS = [
+  "Quick access to all your past bookings",
+  "Autofill passenger details on future bookings",
+  "Easy online check-in management",
+];
 
 const PassengerInfoSignIn = () => {
+  const { user } = useSelector((state: RootState) => state.user);
+
+  if (user) {
+    return (
+      <div className="flex items-center gap-3 px-4 py-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 text-sm">
+        <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+          <Check size={12} className="text-white" />
+        </div>
+        <span>
+          Signed in as <span className="font-semibold">{user.firstName} {user.lastName}</span>. Your booking will be saved to your account.
+        </span>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-      <div className="flex-1 px-4 md:px-6 py-3 md:py-5 flex flex-col max-md:gap-4 gap-2 bg-[linear-gradient(#239bff,#0084e7)] text-white rounded-lg">
-        <h2 className="max-md:!text-lg">
-          Benefit from the advantages
-          <br />
-          by logging in as a member
-        </h2>
-        <ul className="flex flex-col gap-2 max-md:text-sm">
-          <li className="flex flex-row items-center gap-2">
-            <TickCircle
-              size={12}
-              color="#4ade80"
-            />
-            <span className="leading-tight">Quick access to all your flights</span>
-          </li>
-          <li className="flex flex-row items-center gap-2">
-            <TickCircle
-              size={12}
-              color="#4ade80"
-            />
-            <span className="leading-tight">Quick ticketing via registered passengers</span>
-          </li>
-          <li className="flex flex-row items-center gap-2">
-            <TickCircle
-              size={12}
-              color="#4ade80"
-            />
-            <span className="leading-tight">Easy online check-in</span>
-          </li>
+    <div className="flex flex-col md:flex-row gap-4 p-4 md:p-5 bg-gradient-to-br from-sky-600 to-navy-800 rounded-xl text-white">
+      {/* Benefits */}
+      <div className="flex-1 flex flex-col gap-3">
+        <div>
+          <h3 className="font-bold text-lg text-white">Sign in for a better experience</h3>
+          <p className="text-sky-200 text-sm font-light">Members enjoy exclusive benefits</p>
+        </div>
+        <ul className="flex flex-col gap-2">
+          {BENEFITS.map((benefit) => (
+            <li key={benefit} className="flex items-start gap-2 text-sm text-sky-100">
+              <div className="w-4 h-4 rounded-full bg-sky-400/30 border border-sky-400/50 flex items-center justify-center mt-0.5 flex-shrink-0">
+                <Check size={10} className="text-sky-200" />
+              </div>
+              {benefit}
+            </li>
+          ))}
         </ul>
       </div>
-      <div className="flex-1 bg-white max-md:p-4 p-6 rounded-lg shadow-md shadow-gray-200">
-        <form
-          className="flex flex-col gap-4"
-          action=""
-        >
-          <div className="flex flex-col gap-1">
-            <label
-              className="text-gray-600 font-medium max-md:text-xs text-sm ml-1"
-              htmlFor="username"
-            >
-              Username
-            </label>
-            <input
-              name="username"
-              type="text"
-              placeholder="Username"
-              className="border-[1px] border-gray-300 rounded-lg px-3 py-2 max-md:text-sm"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label
-              className="text-gray-600 font-medium max-md:text-xs text-sm ml-1"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <input
-              name="password"
-              type="text"
-              placeholder="Password"
-              className="border-[1px] border-gray-300 rounded-lg px-3 py-2 max-md:text-sm"
-            />
-          </div>
 
-          <div className="flex flex-row justify-between items-center gap-2 max-md:px-1 px-3">
-            <button className="max-md:text-xs text-sm text-gray-500">Remember Me</button>
-            <button className="max-md:text-xs text-sm text-gray-500">Forgot Password</button>
-          </div>
-          <div className="flex flex-row items-center justify-between gap-2">
-            <button className="flex-1 max-md:text-sm rounded-lg border-[1px] border-gray-300 text-gray-500 max-md:h-9 h-10">
-              Sign Up
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-              }}
-              className="flex-1 max-md:text-sm rounded-lg bg-blue-500 max-md:h-9 h-10 text-white font-medium"
-            >
-              Sign In
-            </button>
-          </div>
-        </form>
+      {/* Sign in button */}
+      <div className="flex md:items-center md:justify-center md:border-l md:border-white/20 md:pl-6">
+        <AuthComponent wrapperType="dialog">
+          <button className="px-6 py-2.5 rounded-lg bg-white text-sky-700 font-semibold text-sm hover:bg-sky-50 transition-colors">
+            Sign In
+          </button>
+        </AuthComponent>
       </div>
     </div>
   );

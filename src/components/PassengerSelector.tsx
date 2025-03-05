@@ -1,7 +1,7 @@
 import { RootState } from "@/lib/store";
 import { useSelector } from "react-redux";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "./ui/select";
-import { Profile } from "iconsax-react";
+import { User } from "lucide-react";
 import { Passenger } from "@/lib/features/bookingSlice";
 
 const PassengerSelector = ({
@@ -10,28 +10,24 @@ const PassengerSelector = ({
   className,
 }: {
   selectedPassenger: Passenger;
-  setSelectedPassenger: Function;
+  setSelectedPassenger: (passenger: Passenger) => void;
   className?: string;
 }) => {
   const { passengers } = useSelector((state: RootState) => state.booking);
 
   return (
     <Select
-      value={selectedPassenger as any}
+      value={selectedPassenger as unknown as string}
       onValueChange={(val) => {
-        setSelectedPassenger(val);
+        setSelectedPassenger(val as unknown as Passenger);
       }}
     >
       <SelectTrigger
-        className={`w-full flex items-center gap-2 p-2 px-3 bg-white rounded-lg border-[1px] border-gray-200 max-md:text-xs text-sm ${className}`}
+        className={`w-full flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-slate-200 text-sm ${className}`}
       >
         <div className="flex items-center gap-2">
-          <Profile
-            size={16}
-            color="black"
-            className="flex-shrink-0"
-          />
-          <span>
+          <User size={15} className="text-slate-400 flex-shrink-0" />
+          <span className="text-slate-700">
             {selectedPassenger?.firstName + " " + selectedPassenger?.lastName}
           </span>
         </div>
@@ -39,9 +35,8 @@ const PassengerSelector = ({
       <SelectContent>
         {passengers.map((passenger: Passenger) => (
           <SelectItem
-            defaultChecked={passenger.email === selectedPassenger?.email}
             key={passenger.email}
-            value={passenger as any}
+            value={passenger as unknown as string}
           >
             {passenger.firstName + " " + passenger.lastName}
           </SelectItem>

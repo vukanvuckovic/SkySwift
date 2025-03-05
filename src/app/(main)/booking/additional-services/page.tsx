@@ -12,13 +12,14 @@ import { SelectionContext } from "@/context/selectionContext";
 import {
   addLuggage,
   addMeal,
+  BookingFlight,
   Flight,
+  Passenger,
   updateBooking,
 } from "@/lib/features/bookingSlice";
 import { setLoadingState } from "@/lib/features/loaderSlice";
 import { getBookingState } from "@/lib/localStorage";
 import { RootState } from "@/lib/store";
-import { Add } from "iconsax-react";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -47,120 +48,105 @@ const OptionsPopover = ({
   );
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={setOpen}
-    >
-      <PopoverTrigger
-        data-test="additional-services-trigger"
-        asChild
-      >
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger data-test="additional-services-trigger" asChild>
         {children}
       </PopoverTrigger>
-      <PopoverContent className="w-[400px] h-fit max-h-[400px] overflow-y-auto scrollbar-hide flex flex-col gap-1 p-3 rounded-lg bg-white border-[1px] border-gray-200 shadow-md shadow-black/10">
-        <ul className="flex flex-col gap-4">
-          {additionalServices?.[type].map((item, index) => {
-            return (
-              <li key={index}>
-                <div className="flex flex-row items-center gap-2">
-                  <div className="h-16 aspect-square rounded-lg overflow-hidden relative shadow-md shadow-gray-200">
-                    <Image
-                      src={item.img}
-                      alt="service"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 flex flex-col gap-2 justify-center">
-                    <span className="font-medium leading-none">
-                      {item.name}
-                    </span>
-                    <span className="text-gray-500 text-sm leading-none">
-                      {item.price.toFixed(2)} EUR
-                    </span>
-                  </div>
-                  <button
-                    data-test="add-additional-service"
-                    onClick={() => {
-                      type === "meals"
-                        ? dispatch(
-                            addMeal({
-                              meal: {
-                                name: item.name,
-                                price: item.price,
-                                flight: selectedFlight?.flight,
-                              },
-                              index: passengerIndex,
-                            })
-                          )
-                        : type === "luggage" &&
-                          dispatch(
-                            addLuggage({
-                              luggage: {
-                                name: item.name,
-                                price: item.price,
-                                flight: selectedFlight?.flight,
-                              },
-                              index: passengerIndex,
-                            })
-                          );
-                      toast.success("Service Added");
-                      setOpen(false);
-                    }}
-                    className="h-10 aspect-square flex justify-center items-center rounded-lg hover:bg-gray-100 duration-200 outline-none"
-                  >
-                    <Plus
-                      size={18}
-                      color="blue"
-                    />
-                  </button>
+      <PopoverContent className="w-[380px] max-h-[400px] overflow-y-auto scrollbar-hide flex flex-col gap-1 p-3 rounded-xl bg-white border border-slate-100 shadow-xl">
+        <ul className="flex flex-col gap-3">
+          {additionalServices?.[type].map((item, index) => (
+            <li key={index}>
+              <div className="flex items-center gap-3 p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                <div className="h-14 w-14 flex-shrink-0 rounded-lg overflow-hidden relative shadow-sm">
+                  <Image
+                    src={item.img}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-              </li>
-            );
-          })}
+                <div className="flex-1 flex flex-col gap-1">
+                  <span className="text-sm font-semibold text-slate-800 leading-tight">
+                    {item.name}
+                  </span>
+                  <span className="text-xs text-slate-400 font-medium">
+                    {item.price.toFixed(2)} EUR
+                  </span>
+                </div>
+                <button
+                  data-test="add-additional-service"
+                  onClick={() => {
+                    if (type === "meals") {
+                      dispatch(
+                        addMeal({
+                          meal: {
+                            name: item.name,
+                            price: item.price,
+                            flight: selectedFlight?.flight as Flight,
+                          },
+                          index: passengerIndex,
+                        })
+                      );
+                    } else {
+                      dispatch(
+                        addLuggage({
+                          luggage: {
+                            name: item.name,
+                            price: item.price,
+                            flight: selectedFlight?.flight as Flight,
+                          },
+                          index: passengerIndex,
+                        })
+                      );
+                    }
+                    toast.success("Service added.");
+                    setOpen(false);
+                  }}
+                  className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-sky-50 hover:bg-sky-100 transition-colors"
+                >
+                  <Plus size={16} className="text-sky-600" />
+                </button>
+              </div>
+            </li>
+          ))}
         </ul>
       </PopoverContent>
     </Popover>
   );
 };
 
-const ServiceCard = ({ type }: { type: "meals" | "luggage" }) => {
-  return (
-    <div className="flex flex-row max-md:gap-3 gap-4 max-md:p-2 p-4 rounded-xl bg-white shadow-sm shadow-gray-200">
-      <div className="flex-1 max-md:min-h-[120px] min-h-[150px] relative rounded-md overflow-hidden">
-        <Image
-          src={serviceCardInfo[type].thumbanil}
-          alt="service"
-          fill
-          className="object-cover"
-        />
-      </div>
-      <div className="flex-1 flex flex-col">
-        <h3 className="font-semibold max-md:text-sm">
-          {serviceCardInfo[type].title}
-        </h3>
-        <span className="flex-1 max-md:text-xs text-gray-500">
-          {serviceCardInfo[type].desc}
-        </span>
-        <OptionsPopover type={type}>
-          <div className="flex flex-row items-center gap-1 self-end max-md:text-xs text-sm text-blue-500 select-none cursor-pointer">
-            <Add
-              size={16}
-              color="#3b82f6"
-            />
-            <span>See Options</span>
-          </div>
-        </OptionsPopover>
-      </div>
+const ServiceCard = ({ type }: { type: "meals" | "luggage" }) => (
+  <div className="flex gap-4 p-4 rounded-xl bg-white border border-slate-100 shadow-card hover:shadow-card-hover transition-shadow">
+    <div className="w-28 flex-shrink-0 rounded-lg overflow-hidden relative">
+      <Image
+        src={serviceCardInfo[type].thumbanil}
+        alt={serviceCardInfo[type].title}
+        fill
+        className="object-cover"
+      />
     </div>
-  );
-};
+    <div className="flex-1 flex flex-col gap-1 min-w-0">
+      <h3 className="font-semibold text-slate-800 text-sm">
+        {serviceCardInfo[type].title}
+      </h3>
+      <p className="flex-1 text-xs text-slate-400 leading-relaxed">
+        {serviceCardInfo[type].desc}
+      </p>
+      <OptionsPopover type={type}>
+        <button className="flex items-center gap-1.5 self-start text-xs font-medium text-sky-600 hover:text-sky-700 transition-colors mt-1">
+          <Plus size={13} />
+          <span>See Options</span>
+        </button>
+      </OptionsPopover>
+    </div>
+  </div>
+);
 
 const AdditionalServices = () => {
   const { loading } = useSelector((state: RootState) => state.loader);
 
-  const [selectedPassenger, setSelectedPassenger] = useState();
-  const [selectedFlight, setSelectedFlight] = useState();
+  const [selectedPassenger, setSelectedPassenger] = useState<Passenger>();
+  const [selectedFlight, setSelectedFlight] = useState<BookingFlight>();
 
   const bookingState = useSelector((state: RootState) => state.booking);
   const { passengers } = bookingState;
@@ -186,44 +172,49 @@ const AdditionalServices = () => {
     }
   }, [bookingState, loading]);
 
-  if (loading || !selectedPassenger || !selectedFlight) return;
+  if (loading || !selectedPassenger || !selectedFlight) return null;
 
   return (
     <SelectionContext.Provider
       value={{
         selectedPassenger,
         selectedFlight,
-        setSelectedFlight,
-        setSelectedPassenger,
+        setSelectedFlight: setSelectedFlight as (flight: BookingFlight) => void,
+        setSelectedPassenger: setSelectedPassenger as (passenger: Passenger) => void,
       }}
     >
-      <div className="flex flex-col max-md:py-6 py-8 max-md:gap-6 gap-8">
-        <div className="flex flex-row max-md:flex-col items-start md:items-center justify-between max-md:gap-3 gap-4">
-          <h2 className="max-md:text-lg max-md:ml-1">Additional Services</h2>
-          <div className="flex flex-col max-md:w-full md:flex-row md:items-center gap-2">
-            <PassengerSelector
-              selectedPassenger={selectedPassenger}
-              setSelectedPassenger={setSelectedPassenger}
-            />
-            <FlightSelector
-              className="max-md:w-full"
-              selectedFlight={selectedFlight}
-              setSelectedFlight={setSelectedFlight}
-            />
-          </div>
+      <div className="flex flex-col py-6 gap-8">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Additional Services</h2>
+          <p className="text-sm text-slate-400">Enhance your journey with meals, extra luggage, and more.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ServiceCard type={"meals"} />
-          <ServiceCard type={"luggage"} />
+
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <PassengerSelector
+            selectedPassenger={selectedPassenger}
+            setSelectedPassenger={setSelectedPassenger as (passenger: Passenger) => void}
+            className="sm:w-56"
+          />
+          <FlightSelector
+            selectedFlight={selectedFlight}
+            setSelectedFlight={setSelectedFlight as (flight: BookingFlight) => void}
+            className="sm:w-auto"
+          />
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ServiceCard type="meals" />
+          <ServiceCard type="luggage" />
+        </div>
+
         <div className="flex flex-col gap-4">
-          <h2 className="max-md:text-lg max-md:ml-1">Added Services</h2>
+          <div className="flex flex-col gap-1">
+            <h3 className="text-lg font-semibold text-slate-800">Added Services</h3>
+            <p className="text-sm text-slate-400">Review and manage selected add-ons per passenger.</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {passengers.map((passenger, index) => (
-              <PassengerInfoCard
-                key={index}
-                passenger={passenger}
-              />
+              <PassengerInfoCard key={index} passenger={passenger} />
             ))}
           </div>
         </div>

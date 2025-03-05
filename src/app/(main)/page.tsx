@@ -22,7 +22,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="flex flex-col overflow-x-hidden">
+    <div className="flex flex-col [overflow-x:clip]">
       <Hero />
       <div className="flex flex-col gap-20 w-full max-w-[1240px] 2xl:max-w-[1440px] max-md:px-2 px-4 self-center -mt-20 z-20 pb-20">
         <SearchComponent />

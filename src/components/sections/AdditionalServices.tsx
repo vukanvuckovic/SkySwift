@@ -4,91 +4,79 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+const SERVICES = [
+  { icon: PlaneTakeoff, label: "Seat Selection", desc: "Choose your ideal seat" },
+  { icon: Pizza, label: "Meal Selection", desc: "Pre-order your in-flight meal" },
+  { icon: Luggage, label: "Excess Luggage", desc: "Extra baggage allowance" },
+  { icon: Box, label: "Sports Equipment", desc: "Travel with your gear" },
+  { icon: BedDouble, label: "CIP Lounge", desc: "Exclusive airport lounge access" },
+];
+
 const AdditionalServices = () => {
   gsap.registerPlugin(ScrollTrigger);
 
   useGSAP(() => {
-    const tl2 = gsap.timeline({
+    const tl = gsap.timeline({
       scrollTrigger: {
         trigger: ".additional-services-trigger",
-        start: "top 90%",
+        start: "top 88%",
         end: "bottom top",
       },
     });
 
-    tl2.from(
-      ".additional-services-text-element",
-      {
-        transform: "translateY(100%)",
-        opacity: 0,
-        filter: "blur(10px)",
-        duration: 1,
-        ease: "power3.out",
-        stagger: 0.3,
-      },
-      0
-    );
+    tl.from(".additional-services-text-element", {
+      y: 30,
+      opacity: 0,
+      filter: "blur(8px)",
+      duration: 0.8,
+      ease: "power3.out",
+      stagger: 0.2,
+      immediateRender: false,
+    }, 0);
 
-    tl2.from(
-      ".additional-service-card",
-      {
-        transform: "translateX(200px)",
-        opacity: 0,
-        filter: "blur(10px)",
-        duration: 2,
-        ease: "power4.out",
-        stagger: 0.2,
-      },
-      0.3
-    );
+    tl.from(".additional-service-card", {
+      x: 60,
+      opacity: 0,
+      filter: "blur(8px)",
+      duration: 1.2,
+      ease: "power4.out",
+      stagger: 0.12,
+      immediateRender: false,
+    }, 0.2);
   });
+
   return (
-    <div className="additional-services-trigger flex flex-col justify-center items-center max-md:p-3 p-6 max-md:gap-6 gap-10 min-h-[400px] rounded-xl overflow-hidden bg-[url('/airplane3.jpg')] bg-cover bg-center relative">
-      <div className="backdrop-blur-sm absolute top-0 left-0 h-full w-full bg-black/20" />
-      <div className="flex flex-col self-start leading-none ml-2 z-10 custom-drop-shadow">
-        <h2 className="additional-services-text-element max-md:text-xl text-3xl text-white">
+    <div className="additional-services-trigger flex flex-col justify-center items-start gap-8 p-6 md:p-10 min-h-[380px] rounded-2xl overflow-hidden bg-[url('/airplane3.jpg')] bg-cover bg-center relative">
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-navy-950/85 via-navy-900/70 to-navy-900/50" />
+
+      <div className="relative z-10 flex flex-col gap-1">
+        <p className="additional-services-text-element text-xs font-semibold text-sky-400 uppercase tracking-widest">
+          What we offer
+        </p>
+        <h2 className="additional-services-text-element text-2xl md:text-3xl text-white font-bold tracking-tight">
           Additional Services
         </h2>
-        <span className="additional-services-text-element max-md:text-xs text-gray-200">
-          Fly with pleasure. Find more information below.
-        </span>
+        <p className="additional-services-text-element text-sm text-slate-300 font-light">
+          Enhance your journey with our premium add-ons.
+        </p>
       </div>
-      <div className="w-full flex flex-row flex-wrap items-center max-md:gap-2 gap-4 z-10">
-        <div className="additional-service-card">
-          <PlaneTakeoff
-            size={32}
-            color="#3b82f6"
-          />
-          <span className="text-white truncate">Seat Selection</span>
-        </div>
-        <div className="additional-service-card">
-          <Pizza
-            size={32}
-            color="#3b82f6"
-          />
-          <span className="text-white truncate">Meal Selection</span>
-        </div>
-        <div className="additional-service-card">
-          <Luggage
-            size={32}
-            color="#3b82f6"
-          />
-          <span className="text-white truncate">Excess Luggage</span>
-        </div>
-        <div className="additional-service-card">
-          <Box
-            size={32}
-            color="#3b82f6"
-          />
-          <span className="text-white truncate">Sports Equipment</span>
-        </div>
-        <div className="additional-service-card">
-          <BedDouble
-            size={32}
-            color="#3b82f6"
-          />
-          <span className="text-white truncate">CIP Lounge</span>
-        </div>
+
+      <div className="relative z-10 w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {SERVICES.map(({ icon: Icon, label, desc }) => (
+          <div
+            key={label}
+            className="additional-service-card flex flex-col gap-3 p-4 md:p-5 bg-white/10 backdrop-blur-md rounded-xl border border-white/15 hover:bg-white/18 hover:border-white/25 transition-all duration-200"
+          >
+            <div className="w-10 h-10 rounded-lg bg-sky-500/20 flex items-center justify-center">
+              <Icon size={20} className="text-sky-300" />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-white text-sm font-semibold leading-tight">{label}</span>
+              <span className="text-slate-400 text-xs leading-snug">{desc}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

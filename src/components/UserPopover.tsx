@@ -1,6 +1,6 @@
 import React from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Logout, Ticket2 } from "iconsax-react";
+import { LogOut, Ticket } from "lucide-react";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { resetUser } from "@/lib/features/userSlice";
@@ -16,18 +16,27 @@ const UserPopover = ({ children }: { children: React.ReactNode }) => {
   `;
 
   const dispatch = useDispatch();
-  const [logout, { loading, error }] = useMutation(LOG_OUT);
+  const [logout, { loading }] = useMutation(LOG_OUT);
 
   return (
     <Popover>
-      <PopoverTrigger
-        data-test="user-popover-trigger"
-        asChild
-      >
+      <PopoverTrigger data-test="user-popover-trigger" asChild>
         {children}
       </PopoverTrigger>
-      <PopoverContent className="w-full p-1 rounded-[8px] bg-white/50 backdrop-blur-2xl border-white/30 text-gray-700">
-        <ul className="flex flex-col gap-1">
+      <PopoverContent
+        align="end"
+        className="w-44 p-1.5 rounded-xl bg-white shadow-xl border border-slate-100"
+      >
+        <ul className="flex flex-col gap-0.5">
+          <li>
+            <Link
+              href="/my-bookings"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-slate-50 text-sm text-slate-700 font-medium transition-colors"
+            >
+              <Ticket size={15} className="text-slate-400" />
+              My Bookings
+            </Link>
+          </li>
           <li>
             <button
               data-test="popover-logout-button"
@@ -35,36 +44,16 @@ const UserPopover = ({ children }: { children: React.ReactNode }) => {
                 const { data } = await logout();
                 if (data.logout) {
                   dispatch(resetUser());
-                  toast.success("Logged out successfully!");
+                  toast.success("Signed out successfully.");
                 } else {
-                  toast.error("Error logging out", {
-                    description: "Try again later.",
-                  });
-                  console.log(error);
+                  toast.error("Error signing out", { description: "Try again later." });
                 }
               }}
-              className="w-full flex items-center gap-3 hover:bg-white/10 duration-150 p-2 rounded-[4px] outline-none"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-red-50 hover:text-red-600 text-sm text-slate-600 font-medium transition-colors"
             >
-              <Logout
-                size={18}
-                color="#374151"
-              />
-              <span className="text-[16px]">
-                {loading ? "Logging Out..." : "Log Out"}
-              </span>
+              <LogOut size={15} className="text-slate-400" />
+              {loading ? "Signing out…" : "Sign Out"}
             </button>
-          </li>
-          <li>
-            <Link
-              href={"/my-bookings"}
-              className="w-full flex items-center gap-3 hover:bg-white/10 duration-150 p-2 rounded-[4px] outline-none"
-            >
-              <Ticket2
-                size={18}
-                color="#374151"
-              />
-              <span className="text-[16px]">My Bookings</span>
-            </Link>
           </li>
         </ul>
       </PopoverContent>

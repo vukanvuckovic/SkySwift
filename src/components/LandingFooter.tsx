@@ -1,16 +1,22 @@
+"use client";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Facebook, Instagram, Youtube } from "iconsax-react";
-import { Linkedin, Twitter } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import { Twitter, Linkedin, Facebook, Instagram, Youtube } from "lucide-react";
+
+const FOOTER_LINKS = {
+  Company: ["About Us", "Mission & Vision", "Our Policies", "Careers", "Flight Destinations"],
+  Support: ["FAQ", "Baggage Tracking", "Press & Announcements", "Contact Us"],
+  Legal: ["Privacy Statement", "Cookie Policy", "Terms & Conditions"],
+};
 
 const LandingFooter = () => {
   gsap.registerPlugin(ScrollTrigger);
 
   useGSAP(() => {
-    const tl6 = gsap.timeline({
+    const tl = gsap.timeline({
       scrollTrigger: {
         trigger: ".footer-trigger",
         start: "top 90%",
@@ -18,217 +24,126 @@ const LandingFooter = () => {
       },
     });
 
-    tl6.from(
-      ".footer-translate-element",
-      {
-        transform: "translateY(50px)",
-        opacity: 0,
-        filter: "blur(10px)",
-        duration: 1,
-        ease: "power4.out",
-        stagger: 0.05,
-      },
-      0
-    );
+    tl.from(".footer-translate-element", {
+      y: 30,
+      opacity: 0,
+      filter: "blur(6px)",
+      duration: 0.8,
+      ease: "power3.out",
+      stagger: 0.04,
+    }, 0);
 
-    tl6.from(
-      ".footer-slide-element",
-      {
-        transform: "translateX(70px)",
-        opacity: 0,
-        filter: "blur(10px)",
-        duration: 1,
-        ease: "power4.out",
-        stagger: 0.2,
-      },
-      0.5
-    );
+    tl.from(".footer-slide-element", {
+      x: 40,
+      opacity: 0,
+      duration: 0.8,
+      ease: "power3.out",
+      stagger: 0.1,
+    }, 0.3);
 
-    tl6.from(
-      ".footer-iphone-element",
-      {
-        transform: "translateY(100%)",
-        opacity: 0,
-        filter: "blur(10px)",
-        duration: 2,
-        ease: "power4.out",
-      },
-      1
-    );
-
-    tl6.from(
-      ".footer-opacity-element",
-      {
-        opacity: 0,
-        filter: "blur(10px)",
-        duration: 2,
-        ease: "power4.out",
-        stagger: 0.2,
-      },
-      1
-    );
-
-    tl6.from(
-      ".bottom-bar-left",
-      {
-        opacity: 0,
-        duration: 2,
-        transform: "translateX(-100px)",
-        ease: "power4.out",
-        stagger: 0.2,
-      },
-      2
-    );
-
-    tl6.from(
-      ".bottom-bar-right",
-      {
-        opacity: 0,
-        duration: 2,
-        transform: "translateX(100px)",
-        ease: "power4.out",
-        stagger: 0.4,
-      },
-      2
-    );
+    tl.from(".footer-iphone-element", {
+      y: 60,
+      opacity: 0,
+      duration: 1.2,
+      ease: "power4.out",
+    }, 0.4);
   });
 
   return (
-    <div className="footer-trigger flex flex-col bg-[linear-gradient(to_right,#002554,#002a5d)] text-white">
-      <div className="flex flex-col w-full max-w-[1140px] 2xl:max-w-[1440px] mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:gap-10">
-          <div className="flex flex-col gap-10 py-10">
-            <h2 className="footer-translate-element max-md:text-2xl text-4xl md:text-5xl">
-              SkySwift
-            </h2>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="flex flex-col gap-3 self-start">
-                <h3 className="footer-translate-element font-semibold text-green-400 max-md:text-sm">
-                  Corporate
-                </h3>
-                <ul className="flex flex-col gap-2 font-bold text-xs max-md:text-[10px]">
-                  <li className="footer-translate-element">About Us</li>
-                  <li className="footer-translate-element">Mission & Vision</li>
-                  <li className="footer-translate-element">Our Policies</li>
-                  <li className="footer-translate-element">Tender Notices</li>
-                  <li className="footer-translate-element">
-                    Flight Destinations
-                  </li>
-                  <li className="footer-translate-element">
-                    Frequently Asked Questions
-                  </li>
-                  <li className="footer-translate-element">
-                    Rules and Conditions
-                  </li>
-                  <li className="footer-translate-element">Career</li>
-                </ul>
-              </div>
-              <div className="flex flex-col gap-3 self-start">
-                <h3 className="footer-translate-element font-semibold text-green-400 max-md:text-sm">
-                  Media
-                </h3>
-                <ul className="flex flex-col gap-2 font-bold text-xs max-md:text-[10px]">
-                  <li className="footer-translate-element">
-                    Press and Announcements
-                  </li>
-                  <li className="footer-translate-element">Gallery</li>
-                </ul>
-                <h3 className="footer-translate-element font-semibold text-green-400 max-md:text-sm">
-                  Contact
-                </h3>
-                <ul className="flex flex-col gap-2 font-bold text-xs max-md:text-[10px]">
-                  <li className="footer-translate-element">Baggage Tracking</li>
-                </ul>
-              </div>
+    <footer className="footer-trigger bg-navy-950 text-white">
+      <div className="w-full max-w-[1140px] 2xl:max-w-[1440px] mx-auto px-5 md:px-8">
+
+        {/* Main footer grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 py-12 border-b border-white/10">
+
+          {/* Brand column */}
+          <div className="md:col-span-4 flex flex-col gap-6">
+            <div className="flex flex-col gap-2">
+              <span className="footer-translate-element text-2xl font-bold tracking-tight">
+                SkySwift
+              </span>
+              <p className="footer-translate-element text-sm text-slate-400 font-light max-w-[240px] leading-relaxed">
+                Book flights seamlessly. Search hundreds of routes and find your perfect journey.
+              </p>
+            </div>
+
+            {/* Social icons */}
+            <div className="flex items-center gap-4">
+              {[Youtube, Facebook, Instagram].map((Icon, i) => (
+                <button
+                  key={i}
+                  className="footer-translate-element w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                >
+                  <Icon size={16} color="white" />
+                </button>
+              ))}
+              <button className="footer-translate-element w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                <Linkedin size={16} color="white" />
+              </button>
+              <button className="footer-translate-element w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                <Twitter size={16} color="white" />
+              </button>
             </div>
           </div>
-          <div className="flex-1 flex flex-col gap-12 pt-10">
-            <div className="flex flex-row flex-wrap items-center gap-4 justify-between">
-              <h2 className="footer-slide-element max-md:text-xl text-3xl">
-                Follow Us on Social Media
-              </h2>
-              <div className="flex items-center gap-6">
-                <Youtube
-                  size={30}
-                  color="white"
-                  variant="Bold"
-                  className="footer-slide-element"
-                />
-                <Facebook
-                  size={30}
-                  color="white"
-                  variant="Bold"
-                  className="footer-slide-element"
-                />
-                <Linkedin
-                  size={30}
-                  color="white"
-                  className="footer-slide-element"
-                />
-                <Instagram
-                  size={30}
-                  color="white"
-                  variant="Bold"
-                  className="footer-slide-element"
-                />
-                <Twitter
-                  size={30}
-                  color="white"
-                  className="footer-slide-element"
-                />
+
+          {/* Links columns */}
+          <div className="md:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-6">
+            {Object.entries(FOOTER_LINKS).map(([category, links]) => (
+              <div key={category} className="flex flex-col gap-3">
+                <h4 className="footer-translate-element text-xs font-semibold text-sky-400 uppercase tracking-widest">
+                  {category}
+                </h4>
+                <ul className="flex flex-col gap-2">
+                  {links.map((link) => (
+                    <li key={link}>
+                      <span className="footer-translate-element text-sm text-slate-400 hover:text-white transition-colors cursor-pointer">
+                        {link}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
-            <div className="flex-1 flex flex-col max-md:items-center md:flex-row gap-6 overflow-hidden">
-              <div className="footer-iphone-element md:flex-1 max-md:w-full max-md:max-w-[300px] max-w-[250px] h-[300px] relative">
-                <Image
-                  src={"/mockup/iphone.png"}
-                  alt="iphone"
-                  fill
-                  className="md:object-cover object-contain object-top"
-                />
-              </div>
-              <div className="flex-1 flex flex-col justify-center max-md:items-center gap-4 py-4">
-                <h2 className="footer-opacity-element text-xl md:text-3xl font-bold leading-none">
-                  SkySwift Mobile
-                </h2>
-                <span className="footer-opacity-element max-md:text-xs text-sm text-white font-light max-md:text-center leading-none">
-                  Download SkySwift mobile app and get instant notifications
-                  about new opportunities.
-                </span>
-                <div className="flex flex-row flex-wrap gap-1 mt-2">
-                  <Image
-                    src={"/download/appstore.svg"}
-                    alt="appstore"
-                    height={50}
-                    width={100}
-                    className="footer-opacity-element"
-                  />
-                  <Image
-                    src={"/download/googleplay.svg"}
-                    alt="appstore"
-                    height={50}
-                    width={100}
-                    className="footer-opacity-element"
-                  />
-                </div>
-              </div>
+            ))}
+          </div>
+
+          {/* App download */}
+          <div className="md:col-span-3 flex flex-col gap-4">
+            <h4 className="footer-slide-element text-xs font-semibold text-sky-400 uppercase tracking-widest">
+              Get the App
+            </h4>
+            <p className="footer-slide-element text-sm text-slate-400 leading-relaxed">
+              Manage bookings on the go with SkySwift Mobile.
+            </p>
+            <div className="flex flex-col gap-2">
+              <Image
+                src="/download/appstore.svg"
+                alt="App Store"
+                height={40}
+                width={130}
+                className="footer-slide-element rounded-lg"
+              />
+              <Image
+                src="/download/googleplay.svg"
+                alt="Google Play"
+                height={40}
+                width={130}
+                className="footer-slide-element rounded-lg"
+              />
             </div>
           </div>
         </div>
-        <div className="flex max-md:flex-col items-start md:items-center justify-between gap-6 border-t-[1px] border-blue-800 py-4 font-medium">
-          <span className="bottom-bar-left max-md:text-[10px] text-sm max-md:order-2">
-            SkySwift {new Date().getFullYear()} © All rights of this site are
-            reserved.
-          </span>
-          <div className="flex max-md:flex-col max-md:items-start items-center gap-2 md:gap-6 max-md:text-xs text-sm max-md:order-1">
-            <span className="bottom-bar-right">Feedback Form</span>
-            <span className="bottom-bar-right">Stay Informed About Us</span>
-            <span className="bottom-bar-right">Privacy Statement</span>
-            <span className="bottom-bar-right">Cookie Policy</span>
+
+        {/* Bottom bar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-5 text-xs text-slate-500">
+          <span>SkySwift © {new Date().getFullYear()} — All rights reserved.</span>
+          <div className="flex items-center gap-4">
+            <span className="hover:text-slate-300 cursor-pointer transition-colors">Privacy</span>
+            <span className="hover:text-slate-300 cursor-pointer transition-colors">Cookies</span>
+            <span className="hover:text-slate-300 cursor-pointer transition-colors">Feedback</span>
           </div>
         </div>
       </div>
-    </div>
+    </footer>
   );
 };
 

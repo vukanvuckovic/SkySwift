@@ -70,7 +70,7 @@ const Loader = () => {
         <Loader2
           size={36}
           color="white"
-          className="loading-icon "
+          className="loading-icon"
         />
       </div>
     </div>

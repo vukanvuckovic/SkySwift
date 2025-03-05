@@ -4,9 +4,9 @@ import { createContext } from "react";
 export const SeatContext = createContext<
   | {
       selectedPassenger: Passenger;
-      setSelectedPassenger: Function;
+      setSelectedPassenger: (passenger: Passenger) => void;
       selectedFlight: BookingFlight;
-      setSelectedFlight: Function;
+      setSelectedFlight: (flight: BookingFlight) => void;
     }
   | undefined
 >(undefined);

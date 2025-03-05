@@ -13,36 +13,25 @@ export const userResolver = {
         const cookieStore = cookies();
         const token = (await cookieStore).get("session")?.value;
 
-        if (!token) {
-          console.log("No session");
-          return;
-        }
+        if (!token) return null;
 
-        let decoded: any = undefined;
+        let decoded: { id: string; email: string } | undefined;
 
         try {
-          decoded = jwt.verify(token, process.env.JWT_SECRET!);
-        } catch (error) {
-          console.log(error);
-          return;
+          decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+            id: string;
+            email: string;
+          };
+        } catch {
+          return null;
         }
 
-        if (!decoded) {
-          return;
-        }
+        if (!decoded) return null;
 
         const user = await User.findById(decoded.id).select("-password");
-
-        if (!user) {
-          console.log("No user");
-          return;
-        }
-
-        console.log("user in me resolver", user);
-
-        return user;
-      } catch (error) {
-        console.log("Error", error);
+        return user ?? null;
+      } catch {
+        return null;
       }
     },
   },
@@ -54,64 +43,47 @@ export const userResolver = {
           expires: new Date(0),
           path: "/",
         });
-
         (await cookies()).delete("session");
-
         return true;
-      } catch (error) {
-        console.log(error);
+      } catch {
         return false;
       }
     },
     login: async (
-      _: any,
+      _: unknown,
       { email, password }: { email: string; password: string }
     ) => {
       try {
-        console.log("login started");
-        if (!email || !password) {
-          console.log("No email or password");
-          return;
-        }
+        if (!email || !password) return null;
 
         await connectDB();
         const user = await User.findOne({ email });
 
-        if (!user) {
-          console.log("No user");
-          return;
-        }
+        if (!user) return null;
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-          console.log("Incorrect password");
-          return;
-        }
+        if (!isMatch) return null;
 
         const token = jwt.sign(
           { id: user._id, email: user.email },
           process.env.JWT_SECRET as string,
-          { expiresIn: "7d" } //7d
+          { expiresIn: "7d" }
         );
 
         (await cookies()).set("session", token, {
           httpOnly: true,
-          //   secure: process.env.NODE_ENV === "production",
-          secure: false,
+          secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
           path: "/",
         });
 
-        console.log("login finished, returning user", user);
-
         return user;
-      } catch (error: any) {
-        console.log("Error logging in", error.message);
-        return;
+      } catch {
+        return null;
       }
     },
     register: async (
-      _: any,
+      _: unknown,
       {
         firstName,
         lastName,
@@ -132,7 +104,6 @@ export const userResolver = {
         await connectDB();
 
         const existingUser = await User.findOne({ email });
-
         if (existingUser) {
           throw new Error("User already exists.");
         }
@@ -147,9 +118,10 @@ export const userResolver = {
         });
 
         return newUser;
-      } catch (error: any) {
-        console.error("Error creating user:", error);
-        throw new Error(error.message || "Internal Server Error");
+      } catch (error: unknown) {
+        throw new Error(
+          error instanceof Error ? error.message : "Internal Server Error"
+        );
       }
     },
   },

@@ -2,209 +2,147 @@
 import PreviewCard from "@/components/FlightCards/PreviewCard";
 import { BookingState } from "@/lib/features/bookingSlice";
 import { extractTime, formatDate } from "@/lib/utils";
-import { ArrangeHorizontal, ArrowRight } from "iconsax-react";
-import { Contact } from "lucide-react";
+import { ArrowRight, ArrowLeftRight, Calendar, Mail, Users } from "lucide-react";
 import React from "react";
 
 const BookingCard = ({ booking }: { booking: BookingState }) => {
+  const origin = booking.flights.going[0].flight.from.city;
+  const destination =
+    booking.flights.going[booking.flights.going.length - 1].flight.to.city;
+  const isRoundTrip = booking.tripType === "returning";
+
   return (
     <div
       data-test="booking-status-card"
-      className="flex flex-col gap-10 py-4 px-4 md:px-6 max-md:rounded-lg rounded-xl shadow-md shadow-gray-200 bg-white"
+      className="flex flex-col gap-6 py-5 px-4 md:px-6 rounded-2xl border border-slate-100 shadow-card bg-white"
     >
-      <div className="flex flex-row items-start justify-between">
+      {/* Header */}
+      <div className="flex items-start justify-between">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <h2 className="max-md:text-lg text-3xl">
-              {booking.flights.going[0].flight.from.city}
+            <h2 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">
+              {origin}
             </h2>
-            {booking.tripType === "returning" ? (
-              <>
-                <ArrangeHorizontal
-                  size={24}
-                  color="black"
-                  className="max-md:hidden"
-                />
-                <ArrangeHorizontal
-                  size={18}
-                  color="black"
-                  className="md:hidden"
-                />
-              </>
+            {isRoundTrip ? (
+              <ArrowLeftRight size={18} className="text-sky-500" />
             ) : (
-              <>
-                <ArrowRight
-                  size={24}
-                  color="black"
-                  className="max-md:hidden"
-                />
-                <ArrowRight
-                  size={18}
-                  color="black"
-                  className="md:hidden"
-                />
-              </>
+              <ArrowRight size={18} className="text-sky-500" />
             )}
-            <h2 className="max-md:text-lg text-3xl">
-              {
-                booking.flights.going[booking.flights.going.length - 1].flight
-                  .to.city
-              }
+            <h2 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">
+              {destination}
             </h2>
           </div>
-          <span className="text-xs text-gray-500">
-            Booking number {booking.id}
+          <span className="text-xs text-slate-400 font-mono">
+            #{booking.id}
           </span>
         </div>
-        <div className="flex items-center max-md:gap-2 gap-3">
-          <h3 className="max-md:text-xs">Active</h3>
-          <div className="w-2 aspect-square rounded-full bg-green-400" />
+
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100">
+          <div className="w-2 h-2 rounded-full bg-emerald-400" />
+          <span className="text-xs font-semibold text-emerald-700">Active</span>
         </div>
       </div>
-      <div className="flex flex-col gap-4">
-        <h3 className="max-md:text-sm">Flights</h3>
-        <div className="flex flex-col gap-4">
-          <PreviewCard
-            flightInfo={booking.flights.going}
-            direction="going"
-            nonremoveable
-          />
+
+      {/* Flights */}
+      <div className="flex flex-col gap-3">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Flights</p>
+        <div className="flex flex-col gap-3">
+          <PreviewCard flightInfo={booking.flights.going} direction="going" nonremoveable />
           {booking.flights.returning.length > 0 && (
-            <PreviewCard
-              flightInfo={booking.flights.returning}
-              direction="returning"
-              nonremoveable
-            />
+            <PreviewCard flightInfo={booking.flights.returning} direction="returning" nonremoveable />
           )}
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        <div className="flex flex-col gap-4">
-          <h3 className="max-md:text-sm">Passengers</h3>
-          <ol className="flex flex-col gap-3">
+
+      {/* Details grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Passengers */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <Users size={14} className="text-slate-400" />
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+              Passengers
+            </p>
+          </div>
+          <ol className="flex flex-col gap-4">
             {booking.passengers.map((passenger, index) => (
-              <li
-                key={index}
-                className="flex flex-col gap-2"
-              >
-                <span className="font-medium max-md:text-sm">
-                  {passenger.firstName + " " + passenger.lastName}
+              <li key={index} className="flex flex-col gap-1.5">
+                <span className="font-semibold text-sm text-slate-800">
+                  {passenger.firstName} {passenger.lastName}
                 </span>
-                <ol className="flex flex-col gap-2 max-md:text-xs text-sm text-gray-500 ml-1">
-                  {[
-                    ...passenger.seats,
-                    ...passenger.meals,
-                    ...passenger.luggage,
-                  ].map((item, index) => (
-                    <li
-                      key={index}
-                      className="flex items-center gap-3"
-                    >
-                      <span className="max-md:text-sm">
+                {[...passenger.seats, ...passenger.meals, ...passenger.luggage].length > 0 && (
+                  <ul className="flex flex-col gap-1 ml-1">
+                    {[...passenger.seats, ...passenger.meals, ...passenger.luggage].map((item, i) => (
+                      <li key={i} className="flex items-center gap-2 text-xs text-slate-500">
                         {item.quantity && item.quantity > 1 && (
-                          <span>{item.quantity}</span>
-                        )}{" "}
-                        {item.name} on{" "}
-                      </span>
-                      <div className="flex items-center gap-2 text-black py-1 px-2 rounded-md bg-gray-100">
-                        <span className="max-md:text-sm">
+                          <span className="font-semibold">{item.quantity}×</span>
+                        )}
+                        <span>{item.name} on</span>
+                        <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md text-slate-700">
                           {item.flight.from.city}
-                        </span>
-                        <ArrowRight
-                          size={14}
-                          color="black"
-                        />
-                        <span className="max-md:text-sm">
+                          <ArrowRight size={10} />
                           {item.flight.to.city}
                         </span>
-                      </div>
-                      <span className="font-semibold text-black">
-                        {item.price} EUR
-                      </span>
-                    </li>
-                  ))}
-                </ol>
+                        <span className="font-semibold text-slate-700">{item.price} EUR</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ol>
         </div>
-        <div className="flex flex-col gap-10">
-          <div className="flex flex-col gap-3">
-            <h3 className="max-md:text-sm">Dates</h3>
-            <div className="flex flex-col gap-1">
-              <span className="max-md:text-xs">
-                Departure on{" "}
-                <span className="font-semibold">
-                  {formatDate(
-                    new Date(booking.flights.going[0].flight.departure)
-                  )}
-                  ,{" "}
-                  {extractTime(
-                    new Date(booking.flights.going[0].flight.departure)
-                  )}
+
+        {/* Dates + contact */}
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Calendar size={14} className="text-slate-400" />
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Dates</p>
+            </div>
+            <div className="flex flex-col gap-1 text-sm text-slate-600">
+              <span>
+                Departure:{" "}
+                <span className="font-semibold text-slate-800">
+                  {formatDate(new Date(booking.flights.going[0].flight.departure))},{" "}
+                  {extractTime(new Date(booking.flights.going[0].flight.departure))}
                 </span>
               </span>
-              <span className="max-md:text-xs">
-                Arrival on{" "}
-                <span className="font-semibold">
-                  {formatDate(
-                    new Date(
-                      booking.flights.going[
-                        booking.flights.going.length - 1
-                      ].flight.arrival
-                    )
-                  )}
-                  ,{" "}
-                  {extractTime(
-                    new Date(
-                      booking.flights.going[
-                        booking.flights.going.length - 1
-                      ].flight.arrival
-                    )
-                  )}
+              <span>
+                Arrival:{" "}
+                <span className="font-semibold text-slate-800">
+                  {formatDate(new Date(booking.flights.going[booking.flights.going.length - 1].flight.arrival))},{" "}
+                  {extractTime(new Date(booking.flights.going[booking.flights.going.length - 1].flight.arrival))}
                 </span>
               </span>
-              {booking.tripType === "returning" &&
-                booking.flights.returning.length > 0 && (
-                  <span className="max-md:text-xs">
-                    Returning on{" "}
-                    <span className="font-semibold">
-                      {formatDate(
-                        new Date(
-                          booking.flights.returning[
-                            booking.flights.returning.length - 1
-                          ].flight.departure
-                        )
-                      )}
-                      ,{" "}
-                      {extractTime(
-                        new Date(
-                          booking.flights.returning[
-                            booking.flights.returning.length - 1
-                          ].flight.departure
-                        )
-                      )}
-                    </span>
+              {isRoundTrip && booking.flights.returning.length > 0 && (
+                <span>
+                  Return:{" "}
+                  <span className="font-semibold text-slate-800">
+                    {formatDate(new Date(booking.flights.returning[booking.flights.returning.length - 1].flight.departure))},{" "}
+                    {extractTime(new Date(booking.flights.returning[booking.flights.returning.length - 1].flight.departure))}
                   </span>
-                )}
+                </span>
+              )}
             </div>
           </div>
-          <div className="flex flex-col gap-3">
-            <h3 className="max-md:text-sm">Contact</h3>
+
+          <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <Contact
-                size={18}
-                color="black"
-              />
-              <span className="max-md:text-xs">{booking.contact}</span>
+              <Mail size={14} className="text-slate-400" />
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Contact</p>
             </div>
+            <span className="text-sm text-slate-700">{booking.contact}</span>
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between">
-        <h2 className="max-md:text-sm">Total</h2>
-        <span className="max-md:text-lg text-2xl font-semibold">
-          {booking.price.toFixed(2)} EUR
+
+      {/* Total */}
+      <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+        <span className="text-sm font-medium text-slate-500">Total amount</span>
+        <span className="text-xl font-bold text-slate-800">
+          {booking.price.toFixed(2)}{" "}
+          <span className="text-sm font-normal text-slate-400">EUR</span>
         </span>
       </div>
     </div>

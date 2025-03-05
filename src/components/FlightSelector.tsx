@@ -10,20 +10,20 @@ const FlightSelector = ({
   className,
 }: {
   selectedFlight: BookingFlight;
-  setSelectedFlight: Function;
+  setSelectedFlight: (flight: BookingFlight) => void;
   className?: string;
 }) => {
   const { flights } = useSelector((state: RootState) => state.booking);
 
   return (
     <Select
-      value={selectedFlight as any}
+      value={selectedFlight as unknown as string}
       onValueChange={(val) => {
-        setSelectedFlight(val);
+        setSelectedFlight(val as unknown as BookingFlight);
       }}
     >
       <SelectTrigger
-        className={`w-fit p-2 px-3 gap-2 bg-white rounded-lg border-[1px] border-gray-200 max-md:text-xs text-sm ${className}`}
+        className={`w-fit px-3 py-2 gap-2 bg-white rounded-lg border border-slate-200 text-sm ${className}`}
       >
         <div className="flex items-center gap-2">
           <span>{selectedFlight?.flight.from.city}</span>

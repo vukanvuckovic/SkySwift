@@ -4,28 +4,16 @@ import { setLoadingState } from "@/lib/features/loaderSlice";
 import { setBookingState, setSearchState } from "@/lib/localStorage";
 import { RootState } from "@/lib/store";
 import { extractTime, formatDate } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronUp, ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const bookingMap = [
-  {
-    path: "/booking/availability",
-    next: "/booking/passenger-info",
-  },
-  {
-    path: "/booking/passenger-info",
-    next: "/booking/seat-selection",
-  },
-  {
-    path: "/booking/seat-selection",
-    next: "/booking/additional-services",
-  },
-  {
-    path: "/booking/additional-services",
-    next: "/booking/payment-info",
-  },
+  { path: "/booking/availability", next: "/booking/passenger-info" },
+  { path: "/booking/passenger-info", next: "/booking/seat-selection" },
+  { path: "/booking/seat-selection", next: "/booking/additional-services" },
+  { path: "/booking/additional-services", next: "/booking/payment-info" },
 ];
 
 const Footer = () => {
@@ -33,75 +21,60 @@ const Footer = () => {
 
   const bookingState = useSelector((state: RootState) => state.booking);
   const searchState = useSelector((state: RootState) => state.search);
-
-  const { passengers, flights, passengerInfoValid, contact, price } =
-    bookingState;
-  // const { returning } = searchState;
+  const { passengers, flights, passengerInfoValid, contact, price } = bookingState;
 
   const path = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   const prevBooking = getBookingState();
-  //   dispatch(updateBooking(prevBooking));
-  // }, []);
-
   useEffect(() => {
-    path === "/booking/passenger-info" && dispatch(validatePassengerInfo());
+    if (path === "/booking/passenger-info") {
+      dispatch(validatePassengerInfo());
+    }
   }, [passengers, contact, path]);
 
   const { loading } = useSelector((state: RootState) => state.loader);
 
+  const isDisabled =
+    (!passengerInfoValid && path === "/booking/passenger-info") ||
+    (flights.going.length < 1 && path === "/booking/availability") ||
+    loading;
+
   return (
-    <footer className="bg-[#0b2351] text-white sticky bottom-0 z-20">
-      <div className="flex flex-col w-full max-w-[1140px] 2xl:max-w-[1440px] mx-auto px-4">
+    <footer className="bg-navy-900 text-white sticky bottom-0 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.25)]">
+      <div className="w-full max-w-[1140px] 2xl:max-w-[1440px] mx-auto px-4">
+
+        {/* Expanded details */}
         {expand && (
-          <div className="flex flex-row items-start max-h-[300px] overflow-y-scroll scrollbar-hide gap-20 py-6 border-b-[1px] border-b-blue-900">
-            <div className="flex flex-col gap-3">
-              <h3>Flights</h3>
-              <ol className="flex flex-col gap-1">
+          <div className="flex flex-row items-start max-h-[240px] overflow-y-scroll scrollbar-hide gap-12 py-5 border-b border-white/10 text-sm">
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-semibold text-sky-400 uppercase tracking-wider">Flights</p>
+              <ol className="flex flex-col gap-1.5">
                 {[...flights.going, ...flights.returning].map((item, index) => (
-                  <li
-                    className="flex flex-row items-center gap-2"
-                    key={index}
-                  >
+                  <li key={index} className="flex items-center gap-2 text-slate-300">
                     <span>{item.flight.from.city}</span>
-                    <ArrowRight
-                      size={16}
-                      color="white"
-                    />
+                    <ArrowRight size={12} className="text-sky-400 flex-shrink-0" />
                     <span>{item.flight.to.city}</span>
                   </li>
                 ))}
               </ol>
             </div>
-            <div className="flex flex-col gap-3">
-              <h3>Passengers</h3>
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-semibold text-sky-400 uppercase tracking-wider">Passengers</p>
               <ol className="flex flex-col gap-2">
                 {passengers.map((passenger, index) => (
-                  <li
-                    className="flex flex-col gap-1"
-                    key={index}
-                  >
-                    <span className="font-medium">
-                      {passenger.firstName + " " + passenger.lastName}
+                  <li key={index} className="flex flex-col gap-1">
+                    <span className="font-medium text-white">
+                      {passenger.firstName} {passenger.lastName}
                     </span>
-                    {(passenger.meals?.length > 0 ||
-                      passenger.luggage?.length > 0 ||
-                      passenger.seats?.length > 0) && (
-                      <ol className="text-sm ml-1">
-                        {[
-                          ...passenger.meals,
-                          ...passenger.luggage,
-                          ...passenger.seats,
-                        ].map((item, index) => (
-                          <li key={index}>
-                            {item.name} on {item.flight.from.city} -{" "}
-                            {item.flight.to.city}, {item.price.toFixed(2)} EUR
+                    {(passenger.meals?.length > 0 || passenger.luggage?.length > 0 || passenger.seats?.length > 0) && (
+                      <ul className="text-xs text-slate-400 ml-2 flex flex-col gap-0.5">
+                        {[...passenger.meals, ...passenger.luggage, ...passenger.seats].map((item, i) => (
+                          <li key={i}>
+                            {item.name} on {item.flight.from.city}–{item.flight.to.city} · {item.price.toFixed(2)} EUR
                           </li>
                         ))}
-                      </ol>
+                      </ul>
                     )}
                   </li>
                 ))}
@@ -109,67 +82,61 @@ const Footer = () => {
             </div>
           </div>
         )}
-        <div className="flex flex-row items-center max-md:items-end justify-between py-6">
-          <div className="flex flex-col items-start">
+
+        {/* Main footer bar */}
+        <div className="flex items-center justify-between py-4 gap-4">
+          {/* Left: flight summary */}
+          <div className="flex flex-col gap-0.5 min-w-0">
             {flights.going.length > 0 && (
               <>
-                <span className="font-semibold max-md:text-sm">Departure</span>
-                <span className="font-medium max-md:text-xs text-sm">
-                  {flights.going[0].flight.from.airport.id} -{" "}
-                  {flights.going[flights.going.length - 1].flight.to.airport.id}{" "}
-                  • {formatDate(new Date(flights.going[0].flight.departure))}
-                </span>
-                <span className="font-light max-md:text-xs text-sm max-md:hidden">
-                  Departure:{" "}
-                  {extractTime(new Date(flights.going[0].flight.departure))} |
-                  Arrival:{" "}
-                  {extractTime(new Date(flights.going[0].flight.arrival))}
-                </span>
-                <span className="font-light max-md:text-xs text-sm md:hidden">
-                  Departure:{" "}
-                  {extractTime(new Date(flights.going[0].flight.departure))}
-                  <br />
-                  Arrival:{" "}
-                  {extractTime(new Date(flights.going[0].flight.arrival))}
+                <div className="flex items-center gap-1.5">
+                  <span className="font-semibold text-sm truncate">
+                    {flights.going[0].flight.from.airport.id}
+                    {" – "}
+                    {flights.going[flights.going.length - 1].flight.to.airport.id}
+                  </span>
+                  <span className="text-slate-400 text-xs">
+                    · {formatDate(new Date(flights.going[0].flight.departure))}
+                  </span>
+                </div>
+                <span className="text-xs text-slate-400">
+                  {extractTime(new Date(flights.going[0].flight.departure))} → {" "}
+                  {extractTime(new Date(flights.going[flights.going.length - 1].flight.arrival))}
                 </span>
               </>
             )}
             <button
               onClick={() => setExpand((prev) => !prev)}
-              className="font-medium max-md:text-xs text-sm text-blue-300"
+              className="flex items-center gap-1 text-xs text-sky-400 hover:text-sky-300 transition-colors mt-0.5 w-fit"
             >
-              More Details
+              {expand ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
+              {expand ? "Hide details" : "More details"}
             </button>
           </div>
-          <div className="flex flex-col items-end md:flex-row md:items-center gap-4">
-            <div className="order-2 md:order-1 flex flex-col items-end">
-              <span className="text-xl font-semibold text-right">
-                <span className="text-sm font-light">EUR</span>{" "}
-                {price.toFixed(2)}
+
+          {/* Right: price + continue */}
+          <div className="flex items-center gap-4 flex-shrink-0">
+            <div className="flex flex-col items-end">
+              <span className="text-lg md:text-xl font-bold">
+                {price.toFixed(2)}{" "}
+                <span className="text-sm font-normal text-slate-300">EUR</span>
               </span>
-              <span className="text-xs text-blue-100 text-right">
-                Total amount for {passengers.length} passenger
-                {passengers.length > 1 && "s"}
+              <span className="text-xs text-slate-400">
+                {passengers.length} passenger{passengers.length !== 1 && "s"}
               </span>
             </div>
+
             {path !== "/booking/payment-info" && (
               <button
-                disabled={
-                  (!passengerInfoValid && path === "/booking/passenger-info") ||
-                  (flights.going.length < 1 &&
-                    path === "/booking/availability") ||
-                  loading
-                }
+                disabled={isDisabled}
                 onClick={() => {
                   setBookingState(bookingState);
                   setSearchState(searchState);
                   dispatch(setLoadingState(true));
-                  router.push(
-                    bookingMap.find((item) => item.path === path)!.next
-                  );
+                  router.push(bookingMap.find((item) => item.path === path)!.next);
                 }}
                 data-test="footer-continue"
-                className="order-3 md:order-2 max-md:px-8 px-12 max-md:py-2 py-3 rounded-lg max-md:text-sm text-lg bg-blue-500 font-semibold disabled:opacity-50"
+                className="px-6 md:px-10 py-2.5 md:py-3 rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-semibold text-sm md:text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continue
               </button>

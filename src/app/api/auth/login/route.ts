@@ -42,8 +42,7 @@ export async function POST(req: NextRequest) {
     // Set token as an HTTP-only cookie
     (await cookies()).set("session", token, {
       httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
     });

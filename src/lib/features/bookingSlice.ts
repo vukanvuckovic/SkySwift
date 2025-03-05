@@ -15,10 +15,22 @@ export interface FlightDestination {
   };
 }
 
+export interface AirplaneData {
+  name: string;
+  ailes: string[];
+  seats: {
+    name: string;
+    price: number;
+    benefits: string[];
+    rowsFrom: number;
+    rowsTo: number;
+  }[];
+}
+
 export interface Flight extends Document {
   from: FlightDestination;
   to: FlightDestination;
-  plane: { name: string };
+  plane: AirplaneData;
   departure: Date;
   arrival: Date;
   takenSeats: string[];
@@ -75,17 +87,6 @@ const initialState: BookingState = {
     returning: [],
   },
   passengers: [
-    // {
-    //   firstName: "Vukan",
-    //   lastName: "Vuckovic",
-    //   dateOfBirth: "2005-11-20",
-    //   gender: "male",
-    //   email: "vv@gmail.com",
-    //   phone: "123123123",
-    //   seats: [],
-    //   meals: [],
-    //   luggage: [],
-    // },
     {
       firstName: "",
       lastName: "",
@@ -337,7 +338,6 @@ export const bookingSlice = createSlice({
       } else {
         passenger.luggage.push(luggage);
       }
-      // }
 
       state.price = calculateTotalPrice(state);
     },

@@ -12,8 +12,7 @@ import { RootState } from "@/lib/store";
 import { formatDate } from "@/lib/utils";
 import { useQuery } from "@apollo/client";
 import gql from "graphql-tag";
-import { ArrangeHorizontal } from "iconsax-react";
-import { Edit2Icon } from "lucide-react";
+import { ArrowLeftRight, Edit2, PlaneTakeoff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -42,7 +41,7 @@ const Availability = () => {
       router.push("/");
     } else {
       dispatch(updateSearch(prevSearch));
-      dispatch(updateBooking(prevBooking));
+      if (prevBooking) dispatch(updateBooking(prevBooking));
       dispatch(setLoadingState(false));
     }
   }, []);
@@ -50,78 +49,38 @@ const Availability = () => {
   const GET_FLIGHTS = gql`
     fragment DestinationDetails on FlightDestination {
       city
-      airport {
-        name
-        id
-      }
+      airport { name id }
     }
     fragment FlightDetails on Flight {
       id
-      from {
-        ...DestinationDetails
-      }
-      to {
-        ...DestinationDetails
-      }
+      from { ...DestinationDetails }
+      to { ...DestinationDetails }
       departure
       arrival
       plane {
-        id
-        name
-        ailes
-        seats {
-          name
-          price
-          benefits
-          rowsTo
-          rowsFrom
-        }
+        id name ailes
+        seats { name price benefits rowsTo rowsFrom }
       }
       pricing {
-        basic {
-          price
-        }
-        ecojet {
-          price
-        }
-        premium {
-          price
-        }
-        flex {
-          price
-        }
+        basic { price }
+        ecojet { price }
+        premium { price }
+        flex { price }
       }
       takenSeats
     }
-
-    query SearchFlights(
-      $fromCity: String!
-      $toCity: String!
-      $returning: Boolean!
-    ) {
+    query SearchFlights($fromCity: String!, $toCity: String!, $returning: Boolean!) {
       searchFlights(from: $fromCity, to: $toCity, returning: $returning) {
-        directFlights {
-          ...FlightDetails
-        }
-        returningDirectFlights {
-          ...FlightDetails
-        }
-        connectedFlights {
-          ... on Flight {
-            ...FlightDetails
-          }
-        }
-        returningConnectedFlights {
-          ... on Flight {
-            ...FlightDetails
-          }
-        }
+        directFlights { ...FlightDetails }
+        returningDirectFlights { ...FlightDetails }
+        connectedFlights { ... on Flight { ...FlightDetails } }
+        returningConnectedFlights { ... on Flight { ...FlightDetails } }
       }
     }
   `;
 
   const { data, loading } = useQuery(GET_FLIGHTS, {
-    variables: { fromCity: from.city, toCity: to.city, returning: returning },
+    variables: { fromCity: from.city, toCity: to.city, returning },
   });
 
   const {
@@ -134,179 +93,143 @@ const Availability = () => {
   const { flights } = useSelector((state: RootState) => state.booking);
   const loaderLoading = useSelector((state: RootState) => state.loader.loading);
 
-  return (
-    !loaderLoading && (
-      <div className="flex flex-col max-md:gap-6 gap-8 py-8">
-        <h2 className="ml-2">Availability</h2>
-        <div className="flex flex-col max-md:gap-6 gap-8 md:flex-row md:items-center justify-between max-md:px-4 px-8 max-md:py-4 py-6 bg-white rounded-lg border-[1px] border-b-[3px] border-blue-300">
-          <div className="flex flex-col max-md:gap-2 gap-4">
-            <div className="flex flex-row max-md:justify-between max-md:w-full items-center gap-4">
-              <span className="font-medium max-md:text-lg text-2xl">
-                {from.city}
-                <span className="font-light"> ({from.airport.id})</span>
-              </span>
-              <ArrangeHorizontal
-                size={20}
-                color="blue"
-              />
-              <span className="font-medium max-md:text-lg text-2xl">
-                {to.city}
-                <span className="font-light"> ({to.airport.id})</span>
-              </span>
-            </div>
-            <div className="flex flex-row items-center gap-2 font-medium max-md:text-xs">
-              <span className="font-bold">DEPARTURE</span>
-              <span>{formatDate(new Date(departureDate))}</span>
-              {returningDate && returningDate !== "" && returning && (
-                <>
-                  <div className="h-8 w-[1px] bg-gray-200 mx-2" />
-                  <span className="font-bold">RETURN</span>
-                  <span>{formatDate(new Date(returningDate))}</span>
-                </>
-              )}
-            </div>
+  const sectionLabel = (text: string) => (
+    <div className="flight-direction-mark">{text}</div>
+  );
+
+  return !loaderLoading ? (
+    <div className="flex flex-col gap-6 py-6 md:py-8">
+
+      {/* Search summary bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 md:px-6 py-4 md:py-5 bg-white rounded-xl border border-slate-100 shadow-card">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-3">
+            <span className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">
+              {from.city}
+            </span>
+            <ArrowLeftRight size={18} className="text-sky-500 flex-shrink-0" />
+            <span className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">
+              {to.city}
+            </span>
           </div>
-          <button
-            onClick={() => setSearchVisible((prev) => !prev)}
-            className="flex flex-row items-center gap-3 py-1 max-md:px-3 px-5 max-md:text-sm border-[1px] border-blue-400 rounded-lg max-md:self-end"
-          >
-            <Edit2Icon
-              size={16}
-              color="black"
-            />
-            <span>Edit Search</span>
-          </button>
+          <div className="flex items-center gap-3 text-xs text-slate-400 font-medium">
+            <span className="text-slate-500">{from.airport.id}</span>
+            <span>·</span>
+            <span className="uppercase tracking-wider">Departure</span>
+            <span className="text-slate-700">{formatDate(new Date(departureDate))}</span>
+            {returningDate && returningDate !== "" && returning && (
+              <>
+                <span>·</span>
+                <span className="uppercase tracking-wider">Return</span>
+                <span className="text-slate-700">{formatDate(new Date(returningDate))}</span>
+              </>
+            )}
+          </div>
         </div>
 
-        {searchVisible && (
-          <SearchComponent
-            edit
-            setSearchVisible={setSearchVisible}
-          />
-        )}
-
-        {loading ? (
-          Array.from({ length: 20 }).map((_, index) => (
-            <FlightSkeletonCard key={index} />
-          ))
-        ) : (
-          <>
-            {(flights.going.length > 0 || flights.returning.length > 0) && (
-              <div
-                id="my-flights"
-                className="flex flex-col gap-4"
-              >
-                <h3 className="ml-2">My Flights</h3>
-                <div className="flex flex-col gap-4">
-                  {flights.going.length > 0 && (
-                    <PreviewCard
-                      direction="going"
-                      flightInfo={flights.going}
-                    />
-                  )}
-                  {flights.returning.length > 0 && (
-                    <PreviewCard
-                      direction="returning"
-                      flightInfo={flights.returning}
-                    />
-                  )}
-                </div>
-              </div>
-            )}
-            <div className="flex flex-col gap-10">
-              {directFlights && directFlights.length > 0 && (
-                <div className="flex flex-col gap-6">
-                  <div className="flight-direction-mark">Direct Flights</div>
-                  <div
-                    data-test="direct-flights-container"
-                    className="flex flex-col gap-4"
-                  >
-                    {directFlights?.map((item: Flight, index: number) => (
-                      <MixedCard
-                        direction="going"
-                        key={index}
-                        flightInfo={[item]}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-              {connectedFlights && connectedFlights.length > 0 && (
-                <div className="flex flex-col gap-6">
-                  <div className="flight-direction-mark">Connected Flights</div>
-                  <div
-                    data-test="connected-flights-container"
-                    className="flex flex-col gap-4"
-                  >
-                    {connectedFlights?.map((item: Flight[], index: number) => (
-                      <MixedCard
-                        direction="going"
-                        key={index}
-                        flightInfo={item}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-              {connectedFlights?.length === 0 &&
-                directFlights?.length === 0 && (
-                  <span className="text-lg text-gray-600 self-center">
-                    No going flights found.
-                  </span>
-                )}
-              {returning &&
-                returningDirectFlights &&
-                returningDirectFlights?.length > 0 && (
-                  <div className="flex flex-col gap-6">
-                    <div className="flight-direction-mark">
-                      Direct Returning Flights
-                    </div>
-                    <div className="flex flex-col gap-4">
-                      {returningDirectFlights?.map(
-                        (item: Flight, index: number) => (
-                          <MixedCard
-                            direction="returning"
-                            key={index}
-                            flightInfo={[item]}
-                          />
-                        )
-                      )}
-                    </div>
-                  </div>
-                )}
-              {returning &&
-                returningConnectedFlights &&
-                returningConnectedFlights?.length > 0 && (
-                  <div className="flex flex-col gap-6">
-                    <div className="flight-direction-mark">
-                      Connected Returning Flights
-                    </div>
-                    <div className="flex flex-col gap-4">
-                      {returningConnectedFlights?.map(
-                        (item: Flight[], index: number) => (
-                          <MixedCard
-                            direction="returning"
-                            key={index}
-                            flightInfo={item}
-                          />
-                        )
-                      )}
-                    </div>
-                  </div>
-                )}
-              {returningConnectedFlights?.length === 0 &&
-                returningDirectFlights?.length === 0 &&
-                returning && (
-                  <span className="text-lg text-gray-600 self-center">
-                    No returning flights found.
-                  </span>
-                )}
-            </div>
-          </>
-        )}
+        <button
+          onClick={() => setSearchVisible((prev) => !prev)}
+          className="flex items-center gap-2 self-start sm:self-center px-4 py-2 rounded-lg border border-slate-200 hover:border-sky-300 hover:bg-sky-50 text-slate-600 hover:text-sky-700 text-sm font-medium transition-all duration-150"
+        >
+          <Edit2 size={14} />
+          Edit Search
+        </button>
       </div>
-    )
-  );
+
+      {searchVisible && (
+        <SearchComponent edit setSearchVisible={setSearchVisible} />
+      )}
+
+      {/* Selected flights preview */}
+      {(flights.going.length > 0 || flights.returning.length > 0) && (
+        <div className="flex flex-col gap-3">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest ml-1">
+            Selected Flights
+          </p>
+          <div className="flex flex-col gap-3">
+            {flights.going.length > 0 && (
+              <PreviewCard direction="going" flightInfo={flights.going} />
+            )}
+            {flights.returning.length > 0 && (
+              <PreviewCard direction="returning" flightInfo={flights.returning} />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Flight listings */}
+      {loading ? (
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <FlightSkeletonCard key={i} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-8">
+          {/* Going flights */}
+          {directFlights.length > 0 && (
+            <div className="flex flex-col gap-4">
+              {sectionLabel("Direct Flights")}
+              <div data-test="direct-flights-container" className="flex flex-col gap-3">
+                {directFlights.map((item: Flight, i: number) => (
+                  <MixedCard key={i} direction="going" flightInfo={[item]} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {connectedFlights.length > 0 && (
+            <div className="flex flex-col gap-4">
+              {sectionLabel("Connected Flights")}
+              <div data-test="connected-flights-container" className="flex flex-col gap-3">
+                {connectedFlights.map((item: Flight[], i: number) => (
+                  <MixedCard key={i} direction="going" flightInfo={item} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {directFlights.length === 0 && connectedFlights.length === 0 && (
+            <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
+              <PlaneTakeoff size={36} className="opacity-30" />
+              <p className="text-base font-medium">No outbound flights found</p>
+              <p className="text-sm">Try adjusting your search</p>
+            </div>
+          )}
+
+          {/* Returning flights */}
+          {returning && returningDirectFlights.length > 0 && (
+            <div className="flex flex-col gap-4">
+              {sectionLabel("Direct Return Flights")}
+              <div className="flex flex-col gap-3">
+                {returningDirectFlights.map((item: Flight, i: number) => (
+                  <MixedCard key={i} direction="returning" flightInfo={[item]} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {returning && returningConnectedFlights.length > 0 && (
+            <div className="flex flex-col gap-4">
+              {sectionLabel("Connected Return Flights")}
+              <div className="flex flex-col gap-3">
+                {returningConnectedFlights.map((item: Flight[], i: number) => (
+                  <MixedCard key={i} direction="returning" flightInfo={item} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {returning && returningDirectFlights.length === 0 && returningConnectedFlights.length === 0 && (
+            <div className="flex flex-col items-center gap-3 py-10 text-slate-400">
+              <PlaneTakeoff size={32} className="opacity-30 scale-x-[-1]" />
+              <p className="text-base font-medium">No return flights found</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  ) : null;
 };
 
 export default Availability;

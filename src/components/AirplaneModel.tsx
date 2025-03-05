@@ -4,11 +4,12 @@ import React, { useContext } from "react";
 import FlightSelector from "./FlightSelector";
 import SeatSelector from "./SeatSelector";
 import { SeatContext } from "@/context/seatContext";
-import { AdditionalOption } from "@/lib/features/bookingSlice";
+import { AdditionalOption, AirplaneData } from "@/lib/features/bookingSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 
-const AirplaneModel = ({ airplaneData }: { airplaneData: any }) => {
+
+const AirplaneModel = ({ airplaneData }: { airplaneData: AirplaneData }) => {
   const seatInfo = useContext(SeatContext);
   if (!seatInfo) throw new Error("No Context");
   const { selectedPassenger, selectedFlight, setSelectedFlight } = seatInfo;
@@ -38,18 +39,18 @@ const AirplaneModel = ({ airplaneData }: { airplaneData: any }) => {
 
   return (
     <div className="flex-1 flex flex-row items-center md:pt-8 w-full max-w-[600px] max-lg:self-center">
-      <span className="max-md:hidden -rotate-90 text-lg text-gray-400 font-semibold">
+      <span className="max-md:hidden -rotate-90 text-sm text-slate-400 font-semibold tracking-widest uppercase">
         Wing
       </span>
       <div className="flex-1 flex flex-col">
-        <div className="h-[300px] flex flex-col gap-2 justify-center items-center rounded-t-full bg-white shadow-md shadow-black/20">
-          <h2 className="max-md:!text-lg">{airplaneData.name}</h2>
+        <div className="h-[300px] flex flex-col gap-3 justify-center items-center rounded-t-full bg-white shadow-md shadow-black/20">
+          <p className="text-sm font-semibold text-slate-500">{airplaneData.name}</p>
           <FlightSelector
             selectedFlight={selectedFlight}
             setSelectedFlight={setSelectedFlight}
           />
         </div>
-        <div className="airplane flex-1 flex flex-col gap-10 max-md:p-2 p-4 bg-white shadow-md shadow-gray-200">
+        <div className="airplane flex-1 flex flex-col gap-10 max-md:p-2 p-4 bg-white shadow-md shadow-slate-200">
           <div className="flex flex-row items-center justify-between px-4">
             {airplaneData.ailes
               .slice(0, airplaneData.ailes.length / 2)
@@ -73,7 +74,7 @@ const AirplaneModel = ({ airplaneData }: { airplaneData: any }) => {
                 </span>
               ))}
           </div>
-          {airplaneData.seats.map((item: any, index: number) => {
+          {airplaneData.seats.map((item, index: number) => {
             return (
               <div
                 key={index}
@@ -92,10 +93,7 @@ const AirplaneModel = ({ airplaneData }: { airplaneData: any }) => {
                         key={index}
                         className="flex flex-row items-center gap-2"
                       >
-                        <Check
-                          size={12}
-                          color="green"
-                        />
+                        <Check size={12} className="text-emerald-500 flex-shrink-0" />
                         <span className="text-sm">{item}</span>
                       </li>
                     );
@@ -192,7 +190,7 @@ const AirplaneModel = ({ airplaneData }: { airplaneData: any }) => {
         </div>
       </div>
 
-      <span className="max-md:hidden rotate-90 text-lg text-gray-400 font-semibold">
+      <span className="max-md:hidden rotate-90 text-sm text-slate-400 font-semibold tracking-widest uppercase">
         Wing
       </span>
     </div>

@@ -6,11 +6,37 @@ import {
   removeSeat,
 } from "@/lib/features/bookingSlice";
 import { RootState } from "@/lib/store";
-import { ArrowDown2, Profile } from "iconsax-react";
-import { X } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronUp, User, X } from "lucide-react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
+
+const ServiceRow = ({
+  label,
+  price,
+  onRemove,
+  preview,
+}: {
+  label: string;
+  price: string;
+  onRemove?: () => void;
+  preview?: boolean;
+}) => (
+  <li className="flex items-center justify-between py-1.5">
+    <span className="text-sm text-slate-500">{label}</span>
+    <div className="flex items-center gap-2">
+      <span className="text-sm font-semibold text-slate-700">{price} EUR</span>
+      {!preview && onRemove && (
+        <button
+          onClick={onRemove}
+          className="p-0.5 rounded hover:bg-red-50 transition-colors"
+        >
+          <X size={13} className="text-red-400" />
+        </button>
+      )}
+    </div>
+  </li>
+);
 
 const PassengerInfoCard = ({
   passenger,
@@ -20,193 +46,107 @@ const PassengerInfoCard = ({
   preview?: boolean;
 }) => {
   const [collapsed, setCollapsed] = useState(true);
-
   const { passengers } = useSelector((state: RootState) => state.booking);
-
-  const passengerIndex = passengers.findIndex(
-    (item) => item.email === passenger.email
-  );
-
+  const passengerIndex = passengers.findIndex((item) => item.email === passenger.email);
   const dispatch = useDispatch();
 
+  const totalExtras =
+    passenger.seats.length + passenger.meals.length + passenger.luggage.length;
+
   return (
-    <div className="flex flex-col gap-10 bg-white rounded-xl p-4 shadow-md shadow-gray-200">
-      <div className="flex flex-row items-center justify-between">
-        <div className="flex flex-row items-center gap-2">
-          <div className="max-md:h-10 h-12 aspect-square bg-gray-100 rounded-full flex justify-center items-center">
-            <Profile
-              size={20}
-              color="gray"
-            />
+    <div className="flex flex-col bg-white rounded-xl border border-slate-100 shadow-card overflow-hidden">
+      {/* Header */}
+      <button
+        onClick={() => setCollapsed((prev) => !prev)}
+        className="flex items-center justify-between p-4 md:p-5 hover:bg-slate-50 transition-colors w-full text-left"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center flex-shrink-0">
+            <User size={16} className="text-sky-500" />
           </div>
-          <div className="flex flex-col">
-            <h3 className="max-md:text-sm">
-              {passenger.firstName + " " + passenger.lastName}
-            </h3>
-            <span className="max-md:text-xs text-sm text-gray-400">Adult</span>
+          <div>
+            <p className="font-semibold text-slate-800 text-sm">
+              {passenger.firstName} {passenger.lastName}
+            </p>
+            <p className="text-xs text-slate-400">
+              Adult · {totalExtras > 0 ? `${totalExtras} add-on${totalExtras !== 1 ? "s" : ""}` : "No add-ons"}
+            </p>
           </div>
         </div>
-        <button
-          onClick={() => setCollapsed((prev) => !prev)}
-          className="h-8 w-8 rounded-full bg-gray-100 flex justify-center items-center"
-        >
-          <ArrowDown2
-            size={12}
-            color="blue"
-          />
-        </button>
-      </div>
+        {collapsed ? (
+          <ChevronDown size={16} className="text-slate-400" />
+        ) : (
+          <ChevronUp size={16} className="text-slate-400" />
+        )}
+      </button>
+
       {!collapsed && (
-        <div className="flex flex-col gap-6 px-2">
+        <div className="border-t border-slate-100 px-4 md:px-5 py-4 flex flex-col gap-5">
+          {/* Seats */}
           <div className="flex flex-col gap-1">
-            <h3 className="max-md:text-sm">Seats selected</h3>
-            <ol className="flex flex-col gap-1">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Seats</p>
+            <ol>
               {passenger.seats.length > 0 ? (
-                passenger.seats.map((seat: AdditionalOption, index: number) => (
-                  <li
-                    key={index}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-gray-500 max-md:text-sm">
-                      {seat.name} on {seat.flight.from.city} -{" "}
-                      {seat.flight.to.city}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm text-gray-600">
-                        {seat.price.toFixed(2)} EUR
-                      </span>
-                      {!preview && (
-                        <button
-                          onClick={() => {
-                            dispatch(
-                              removeSeat({
-                                seatFlight: seat.flight._id,
-                                index: passengerIndex,
-                              })
-                            );
-                            toast.success("Seat removed.");
-                          }}
-                        >
-                          <X
-                            size={14}
-                            color="red"
-                          />
-                        </button>
-                      )}
-                    </div>
-                  </li>
+                passenger.seats.map((seat: AdditionalOption, i: number) => (
+                  <ServiceRow
+                    key={i}
+                    label={`${seat.name} · ${seat.flight.from.city} → ${seat.flight.to.city}`}
+                    price={seat.price.toFixed(2)}
+                    preview={preview}
+                    onRemove={() => {
+                      dispatch(removeSeat({ seatFlight: seat.flight._id, index: passengerIndex }));
+                      toast.success("Seat removed.");
+                    }}
+                  />
                 ))
               ) : (
-                <li className="flex items-center justify-between">
-                  <span className="text-gray-500 max-md:text-sm">
-                    No seats selected.
-                  </span>
-                  <span className="font-medium text-gray-600 max-md:text-xs text-sm">
-                    0.00 EUR
-                  </span>
-                </li>
+                <li className="text-sm text-slate-400 py-1">None selected</li>
               )}
             </ol>
           </div>
+
+          {/* Meals */}
           <div className="flex flex-col gap-1">
-            <h3 className="max-md:text-sm">Meals selected</h3>
-            <ol className="flex flex-col gap-1">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Meals</p>
+            <ol>
               {passenger.meals.length > 0 ? (
-                passenger.meals.map((meal: AdditionalOption, index: number) => (
-                  <li
-                    key={index}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-gray-500 max-md:text-sm">
-                      {meal.quantity} {meal.name} on {meal.flight.from.city} -{" "}
-                      {meal.flight.to.city}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm text-gray-600">
-                        {(meal.price * meal.quantity!).toFixed(2)} EUR
-                      </span>
-                      {!preview && (
-                        <button
-                          onClick={() => {
-                            dispatch(
-                              removeMeal({
-                                meal,
-                                index: passengerIndex,
-                              })
-                            );
-                            toast.success("Meal removed");
-                          }}
-                        >
-                          <X
-                            size={14}
-                            color="red"
-                          />
-                        </button>
-                      )}
-                    </div>
-                  </li>
+                passenger.meals.map((meal: AdditionalOption, i: number) => (
+                  <ServiceRow
+                    key={i}
+                    label={`${meal.quantity}× ${meal.name} · ${meal.flight.from.city} → ${meal.flight.to.city}`}
+                    price={(meal.price * (meal.quantity ?? 1)).toFixed(2)}
+                    preview={preview}
+                    onRemove={() => {
+                      dispatch(removeMeal({ meal, index: passengerIndex }));
+                      toast.success("Meal removed.");
+                    }}
+                  />
                 ))
               ) : (
-                <li className="flex items-center justify-between">
-                  <span className="text-gray-500 max-md:text-sm">
-                    No meals selected.
-                  </span>
-                  <span className="font-medium text-gray-600 max-md:text-xs text-sm">
-                    0.00 EUR
-                  </span>
-                </li>
+                <li className="text-sm text-slate-400 py-1">None selected</li>
               )}
             </ol>
           </div>
+
+          {/* Luggage */}
           <div className="flex flex-col gap-1">
-            <h3 className="max-md:text-sm">Luggage selected</h3>
-            <ol className="flex flex-col gap-1">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Luggage</p>
+            <ol>
               {passenger.luggage.length > 0 ? (
-                passenger.luggage.map(
-                  (luggage: AdditionalOption, index: number) => (
-                    <li
-                      key={index}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="text-gray-500 max-md:text-sm">
-                        {luggage.name} on {luggage.flight.from.city} -{" "}
-                        {luggage.flight.to.city}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm text-gray-600">
-                          {luggage.price.toFixed(2)} EUR
-                        </span>
-                        {!preview && (
-                          <button
-                            onClick={() => {
-                              dispatch(
-                                removeLuggage({
-                                  luggage: luggage,
-                                  index: passengerIndex,
-                                })
-                              );
-                              toast.success("Luggage removed.");
-                            }}
-                          >
-                            <X
-                              size={14}
-                              color="red"
-                            />
-                          </button>
-                        )}
-                      </div>
-                    </li>
-                  )
-                )
+                passenger.luggage.map((luggage: AdditionalOption, i: number) => (
+                  <ServiceRow
+                    key={i}
+                    label={`${luggage.name} · ${luggage.flight.from.city} → ${luggage.flight.to.city}`}
+                    price={luggage.price.toFixed(2)}
+                    preview={preview}
+                    onRemove={() => {
+                      dispatch(removeLuggage({ luggage, index: passengerIndex }));
+                      toast.success("Luggage removed.");
+                    }}
+                  />
+                ))
               ) : (
-                <li className="flex items-center justify-between">
-                  <span className="text-gray-500 max-md:text-sm">
-                    No luggage selected.
-                  </span>
-                  <span className="font-medium text-gray-600 max-md:text-xs text-sm">
-                    0.00 EUR
-                  </span>
-                </li>
+                <li className="text-sm text-slate-400 py-1">None selected</li>
               )}
             </ol>
           </div>

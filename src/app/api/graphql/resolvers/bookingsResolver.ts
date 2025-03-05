@@ -20,9 +20,12 @@ export const bookingsResolver = {
         const cookieStore = cookies();
         const userJwt = (await cookieStore).get("session");
 
-        if (!userJwt) return;
+        if (!userJwt) return [];
 
-        const decoded: any = jwt.verify(userJwt.value, process.env.JWT_SECRET!);
+        const decoded = jwt.verify(
+          userJwt.value,
+          process.env.JWT_SECRET!
+        ) as { id: string };
 
         const userWithBookings = await User.findById(decoded.id).populate({
           path: "bookings",
@@ -31,49 +34,35 @@ export const bookingsResolver = {
             {
               path: "flights.going.flight",
               model: FlightModel,
-              populate: {
-                path: "plane",
-                model: Plane,
-              },
+              populate: { path: "plane", model: Plane },
             },
             {
               path: "flights.returning.flight",
               model: FlightModel,
-              populate: {
-                path: "plane",
-                model: Plane,
-              },
+              populate: { path: "plane", model: Plane },
             },
             {
               path: "passengers.seats.flight",
               model: FlightModel,
-              populate: {
-                path: "plane",
-                model: Plane,
-              },
+              populate: { path: "plane", model: Plane },
             },
             {
               path: "passengers.meals.flight",
               model: FlightModel,
-              populate: {
-                path: "plane",
-                model: Plane,
-              },
+              populate: { path: "plane", model: Plane },
             },
             {
               path: "passengers.luggage.flight",
               model: FlightModel,
-              populate: {
-                path: "plane",
-                model: Plane,
-              },
+              populate: { path: "plane", model: Plane },
             },
           ],
         });
 
-        return userWithBookings?.bookings || [];
-      } catch (error: any) {
+        return userWithBookings?.bookings ?? [];
+      } catch (error: unknown) {
         console.error("Error fetching bookings:", error);
+        return [];
       }
     },
     bookingStatus: async () => {
@@ -82,62 +71,47 @@ export const bookingsResolver = {
 
         if (!token) throw new Error("Unauthorized");
 
-        const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-
-        const id = decoded.bookingId;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+          bookingId: string;
+        };
 
         await connectDB();
 
-        const booking = await Booking.findById(id).populate([
+        const booking = await Booking.findById(decoded.bookingId).populate([
           {
             path: "flights.going.flight",
             model: FlightModel,
-            populate: {
-              path: "plane",
-              model: Plane,
-            },
+            populate: { path: "plane", model: Plane },
           },
           {
             path: "flights.returning.flight",
             model: FlightModel,
-            populate: {
-              path: "plane",
-              model: Plane,
-            },
+            populate: { path: "plane", model: Plane },
           },
-          {
-            path: "passengers.seats.flight",
-            model: FlightModel,
-          },
-          {
-            path: "passengers.meals.flight",
-            model: FlightModel,
-          },
-          {
-            path: "passengers.luggage.flight",
-            model: FlightModel,
-          },
+          { path: "passengers.seats.flight", model: FlightModel },
+          { path: "passengers.meals.flight", model: FlightModel },
+          { path: "passengers.luggage.flight", model: FlightModel },
         ]);
 
-        return booking;
-      } catch (error) {
-        console.log(error);
+        return booking ?? null;
+      } catch (error: unknown) {
+        console.error("Error fetching booking status:", error);
+        return null;
       }
     },
   },
   Mutation: {
     verifyBooking: async (
-      _: any,
+      _: unknown,
       { bookingId, contact }: { bookingId: string; contact: string }
     ) => {
       try {
-        if (!bookingId || !contact) return;
+        if (!bookingId || !contact) return false;
 
         await connectDB();
 
         const booking = await Booking.findOne({ _id: bookingId, contact });
-
-        if (!booking) return;
+        if (!booking) return false;
 
         const token = jwt.sign(
           { bookingId: booking._id, contact: booking.contact },
@@ -146,47 +120,41 @@ export const bookingsResolver = {
         );
 
         const cookieStore = await cookies();
-
         cookieStore.delete("booking-status-jwt");
-
         cookieStore.set("booking-status-jwt", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
           path: "/",
-          maxAge: 600, // 10 minutes
+          maxAge: 600,
         });
 
         return true;
-      } catch (error) {
-        console.log(error);
+      } catch (error: unknown) {
+        console.error("Error verifying booking:", error);
         return false;
       }
     },
-    postBooking: async (_: any, { booking }: { booking: BookingState }) => {
+    postBooking: async (_: unknown, { booking }: { booking: BookingState }) => {
       try {
-        console.log("posting started");
-        if (!booking) {
-          console.log("No booking");
-          return;
-        }
+        if (!booking) return null;
 
         await connectDB();
 
-        let currentUser = undefined;
-        let sessionToken: any = undefined;
+        let currentUserId: string | undefined;
 
         const userJwt = (await cookies()).get("session");
 
         if (userJwt) {
           try {
-            sessionToken = jwt.verify(userJwt.value, process.env.JWT_SECRET!);
-            currentUser = await User.findById(sessionToken.id);
-          } catch (error) {
-            sessionToken = undefined;
-            console.log("jwt error - ", error);
+            const decoded = jwt.verify(
+              userJwt.value,
+              process.env.JWT_SECRET!
+            ) as { id: string };
+            currentUserId = decoded.id;
+          } catch {
+            currentUserId = undefined;
           }
-          console.log("sessiontoke after verifying", sessionToken);
         }
 
         const newBooking = new Booking({
@@ -196,32 +164,33 @@ export const bookingsResolver = {
             booking.tripType === "returning"
               ? "returning"
               : "oneway",
-          userId: currentUser ? currentUser._id : undefined,
+          userId: currentUserId,
         });
 
         await newBooking.save();
 
         await Promise.all(
-          newBooking.passengers.flatMap((passenger: Passenger) => {
-            passenger.seats.map((seat: AdditionalOption) => {
+          newBooking.passengers.flatMap((passenger: Passenger) =>
+            passenger.seats.map((seat: AdditionalOption) =>
               FlightModel.findByIdAndUpdate(seat.flight, {
                 $addToSet: { takenSeats: seat.name },
-              });
-            });
-          })
+              })
+            )
+          )
         );
 
-        if (userJwt && sessionToken) {
-          const updatedUser = await User.findByIdAndUpdate(
-            sessionToken.id,
+        if (currentUserId) {
+          await User.findByIdAndUpdate(
+            currentUserId,
             { $push: { bookings: newBooking._id } },
             { new: true }
           );
         }
 
         return newBooking;
-      } catch (error: any) {
-        console.log(error);
+      } catch (error: unknown) {
+        console.error("Error posting booking:", error);
+        return null;
       }
     },
   },

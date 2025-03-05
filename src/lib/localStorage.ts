@@ -1,93 +1,64 @@
 import { BookingState } from "./features/bookingSlice";
 import { SearchState } from "./features/searchSlice";
 
+const matchesSearch = (item: SearchState, term: SearchState) =>
+  item.from.city === term.from.city &&
+  item.to.city === term.to.city &&
+  item.departureDate === term.departureDate &&
+  item.returningDate === term.returningDate;
+
 export const setSearchState = (searchState: SearchState) => {
   if (typeof window === "undefined") return;
-
   try {
     localStorage.setItem("searchState", JSON.stringify(searchState));
-  } catch (error) {
-    console.log("Error saving search state: ", error);
+  } catch {
+    // storage unavailable
   }
 };
 
 export const setBookingState = (bookingState: BookingState) => {
   if (typeof window === "undefined") return;
-
   try {
     localStorage.setItem("bookingState", JSON.stringify(bookingState));
-  } catch (error) {
-    console.log("Error saving booking state: ", error);
+  } catch {
+    // storage unavailable
   }
 };
 
-export const getSearchState = () => {
-  if (typeof window === "undefined") return;
-
+export const getSearchState = (): SearchState | undefined => {
+  if (typeof window === "undefined") return undefined;
   try {
-    const searchData = localStorage.getItem("searchState");
-    return searchData ? JSON.parse(searchData) : undefined;
-  } catch (error) {
-    console.log("Error getting search state: ", error);
+    const data = localStorage.getItem("searchState");
+    return data ? JSON.parse(data) : undefined;
+  } catch {
+    return undefined;
   }
 };
 
-export const getBookingState = () => {
-  if (typeof window === "undefined") return;
+export const getBookingState = (): BookingState | undefined => {
+  if (typeof window === "undefined") return undefined;
   try {
-    const bookingState = localStorage.getItem("bookingState");
-    return bookingState ? JSON.parse(bookingState) : undefined;
-  } catch (error) {
-    console.log("Error getting booking state: ", error);
+    const data = localStorage.getItem("bookingState");
+    return data ? JSON.parse(data) : undefined;
+  } catch {
+    return undefined;
   }
 };
 
 export const saveRecentSearch = (searchTerm: SearchState) => {
   if (typeof window === "undefined") return;
-
-  const maxRecentSearches = 10; // Limit the stored searches
-
-  // Get existing searches from localStorage
-  const storedSearches = JSON.parse(
-    localStorage.getItem("recentSearches") || "[]"
-  );
-
-  // Remove duplicate and limit the array size
-  const updatedSearches = [
+  const MAX_RECENT_SEARCHES = 10;
+  const stored: SearchState[] = JSON.parse(localStorage.getItem("recentSearches") || "[]");
+  const updated = [
     searchTerm,
-    ...storedSearches.filter(
-      (item: SearchState) =>
-        item.from.city !== searchTerm.from.city ||
-        item.to.city !== searchTerm.to.city ||
-        item.departureDate !== searchTerm.departureDate ||
-        item.returningDate !== searchTerm.returningDate
-    ),
-  ].slice(0, maxRecentSearches);
-
-  // Store back in localStorage
-  localStorage.setItem("recentSearches", JSON.stringify(updatedSearches));
+    ...stored.filter((item) => !matchesSearch(item, searchTerm)),
+  ].slice(0, MAX_RECENT_SEARCHES);
+  localStorage.setItem("recentSearches", JSON.stringify(updated));
 };
 
 export const removeRecentSearch = (searchTerm: SearchState) => {
   if (typeof window === "undefined") return;
-
-  const storedSearches = JSON.parse(
-    localStorage.getItem("recentSearches") || "[]"
-  );
-
-  const updatedSearches = storedSearches.filter(
-    (item: SearchState) =>
-      item.from.city !== searchTerm.from.city ||
-      item.to.city !== searchTerm.to.city ||
-      item.departureDate !== searchTerm.departureDate ||
-      item.returningDate !== searchTerm.returningDate
-  );
-
-  localStorage.setItem("recentSearches", JSON.stringify(updatedSearches));
+  const stored: SearchState[] = JSON.parse(localStorage.getItem("recentSearches") || "[]");
+  const updated = stored.filter((item) => !matchesSearch(item, searchTerm));
+  localStorage.setItem("recentSearches", JSON.stringify(updated));
 };
-// export const getRecentSearches = () => {
-//   if (typeof window === "undefined") return []; // ✅ Prevents crash on server
-
-//   const recentSearches = localStorage.getItem("recentSearches");
-//   return recentSearches ? JSON.parse(recentSearches) : [];
-// };

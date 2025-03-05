@@ -3,8 +3,7 @@ import {
   incrementPassengers,
 } from "@/lib/features/searchSlice";
 import { RootState } from "@/lib/store";
-import { Minus, Profile } from "iconsax-react";
-import { Plus } from "lucide-react";
+import { Minus, Plus, Users } from "lucide-react";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -19,39 +18,33 @@ const PassengerPopover = ({ children }: { children: React.ReactNode }) => {
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
         side="top"
-        className="min-w-full flex flex-row items-center justify-between gap-10 px-4 py-3 rounded-[10px] bg-white border-[1px] border-gray-200 shadow-md shadow-gray-200"
+        className="min-w-full flex items-center justify-between gap-8 px-4 py-3 rounded-xl bg-white border border-slate-100 shadow-xl"
       >
         <div className="flex flex-col">
-          <h3 className="text-base">Adults</h3>
-          <span className="text-sm text-gray-500">12+</span>
+          <span className="font-semibold text-slate-800 text-sm">Adults</span>
+          <span className="text-xs text-slate-400">12+ years</span>
         </div>
-        <div className="flex flex-row items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={(e) => {
               e.preventDefault();
               dispatch(decrementPassengers());
               dispatch(popPassenger());
             }}
-            className="h-8 aspect-square flex justify-center items-center bg-blue-500 rounded-full"
+            className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-sky-100 hover:text-sky-600 rounded-full transition-colors"
           >
-            <Minus
-              size={16}
-              color="white"
-            />
+            <Minus size={14} className="text-slate-600" />
           </button>
-          <span>{passengers}</span>
+          <span className="w-6 text-center font-bold text-slate-800">{passengers}</span>
           <button
             onClick={(e) => {
               e.preventDefault();
               dispatch(incrementPassengers());
               dispatch(pushPassenger());
             }}
-            className="h-8 aspect-square flex justify-center items-center bg-blue-500 rounded-full"
+            className="w-8 h-8 flex items-center justify-center bg-sky-600 hover:bg-sky-700 rounded-full transition-colors"
           >
-            <Plus
-              size={16}
-              color="white"
-            />
+            <Plus size={14} className="text-white" />
           </button>
         </div>
       </PopoverContent>
@@ -64,17 +57,14 @@ const PassengerPicker = () => {
 
   return (
     <PassengerPopover>
-      <div className="flex-1 flex flex-row items-center gap-3 border-[1px] border-gray-200 rounded-lg px-4 py-3 relative cursor-pointer">
-        <Profile
-          size={24}
-          color="gray"
-        />
-        <div className="flex flex-col">
-          <span className="max-md:text-sm font-medium text-gray-500 leading-none">
+      <div className="flex-1 flex items-center gap-3 border border-slate-200 rounded-lg px-3 py-2.5 relative cursor-pointer hover:border-slate-300 focus-within:border-sky-400 transition-all duration-150 bg-slate-50 shadow-sm">
+        <Users size={18} className={passengers > 1 ? "text-sky-500" : "text-slate-300"} />
+        <div className="flex flex-col min-w-0">
+          <span className="text-xs font-medium text-slate-500 leading-none mb-0.5">
             Passengers
           </span>
-          <span className="max-md:text-xs text-sm font-medium text-blue-400">
-            {passengers} Passenger{passengers > 1 && "s"}
+          <span className="text-sm font-semibold text-sky-600">
+            {passengers} Passenger{passengers !== 1 && "s"}
           </span>
         </div>
       </div>

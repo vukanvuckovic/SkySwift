@@ -40,42 +40,36 @@ const PaymentInfo = () => {
     }
   }, [dispatch]);
 
+  if (loading) return null;
+
   return (
-    !loading && (
-      <div className="flex flex-col max-md:py-6 py-8 max-md:gap-6 gap-8">
-        <h2 className="max-md:text-lg">Payment Summary</h2>
+    <div className="flex flex-col gap-6 py-6 md:py-8">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Payment Summary</h2>
+        <p className="text-sm text-slate-400">Review your booking before completing payment.</p>
+      </div>
+
+      {/* Flight previews */}
+      <div className="flex flex-col gap-3">
         {flights?.going?.map((flightObject: BookingFlight, index: number) => (
-          <PreviewCard
-            key={index}
-            flightInfo={[flightObject]}
-            direction="going"
-            nonremoveable
-          />
+          <PreviewCard key={index} flightInfo={[flightObject]} direction="going" nonremoveable />
         ))}
-        {flights?.returning?.map(
-          (flightObject: BookingFlight, index: number) => (
-            <PreviewCard
-              key={index}
-              flightInfo={[flightObject]}
-              direction="returning"
-              nonremoveable
-            />
-          )
-        )}
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-          <PaymentForm className="order-2 md:order-1" />
-          <div className="flex-1 flex flex-col gap-4 order-1 md:order-2">
-            {passengers?.map((item: Passenger, index: number) => (
-              <PassengerInfoCard
-                key={index}
-                passenger={item}
-                preview
-              />
-            ))}
-          </div>
+        {flights?.returning?.map((flightObject: BookingFlight, index: number) => (
+          <PreviewCard key={index} flightInfo={[flightObject]} direction="returning" nonremoveable />
+        ))}
+      </div>
+
+      {/* Payment form + passenger summary */}
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+        <PaymentForm className="order-2 md:order-1" />
+        <div className="flex-1 flex flex-col gap-3 order-1 md:order-2">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Passengers</p>
+          {passengers?.map((item: Passenger, index: number) => (
+            <PassengerInfoCard key={index} passenger={item} preview />
+          ))}
         </div>
       </div>
-    )
+    </div>
   );
 };
 

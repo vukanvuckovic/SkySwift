@@ -7,7 +7,6 @@ import {
   setSearchState,
 } from "@/lib/localStorage";
 import { RootState } from "@/lib/store";
-import { ArrangeHorizontal, Refresh } from "iconsax-react";
 import AirportPicker from "./AirportPicker";
 import PassengerPicker from "./PassengerPicker";
 import { useRouter } from "next/navigation";
@@ -21,18 +20,17 @@ import {
 import DatePicker from "./DatePicker";
 import RecentSearch from "./RecentSearch";
 import { Skeleton } from "./ui/skeleton";
+import { ArrowLeftRight, PlaneTakeoff, RotateCcw, Search } from "lucide-react";
 
 const SearchComponent = ({
   edit = false,
   setSearchVisible,
 }: {
   edit?: boolean;
-  setSearchVisible?: Function;
+  setSearchVisible?: (visible: boolean) => void;
 }) => {
   const [loading, setLoading] = useState(true);
-  const [recentSearches, setRecentSearches] = useState<
-    SearchState[] | undefined
-  >();
+  const [recentSearches, setRecentSearches] = useState<SearchState[]>([]);
 
   useEffect(() => {
     const res = JSON.parse(localStorage.getItem("recentSearches") || "[]");
@@ -42,30 +40,30 @@ const SearchComponent = ({
 
   const bookingState = useSelector((state: RootState) => state.booking);
   const searchState = useSelector((state: RootState) => state.search);
-
   const { from, to, departureDate, returningDate, returning } = searchState;
 
   const dispatch = useDispatch();
   const router = useRouter();
 
+  const tripButtonBase =
+    "px-5 md:px-8 py-2 text-sm font-medium transition-all duration-200";
+  const activeTripButton = edit
+    ? "bg-navy-900 text-white"
+    : "bg-white/30 text-white font-semibold";
+  const inactiveTripButton = edit
+    ? "bg-navy-800/60 text-white/70 hover:bg-navy-800"
+    : "bg-white/10 text-white/70 hover:bg-white/20";
+
   return (
     <div className="flex flex-col">
-      <div className="flex flex-row items-center rounded-t-lg overflow-hidden w-fit text-white font-light">
+      {/* Trip type tabs */}
+      <div className="flex items-center rounded-t-xl overflow-hidden w-fit">
         <button
           onClick={() => {
             dispatch(setTripTypeBooking("oneway"));
             dispatch(setReturning(false));
           }}
-          className={`h-8 md:h-10 px-6 md:px-10 max-md:text-sm ${
-            !returning
-              ? edit
-                ? "bg-blue-900 font-medium"
-                : "bg-white/30 font-medium"
-              : edit
-              ? "bg-blue-900/50"
-              : "bg-white/20"
-          }
-           backdrop-blur-2xl duration-200`}
+          className={`${tripButtonBase} ${!returning ? activeTripButton : inactiveTripButton}`}
         >
           One Way
         </button>
@@ -74,120 +72,111 @@ const SearchComponent = ({
             dispatch(setTripTypeBooking("returning"));
             dispatch(setReturning(true));
           }}
-          className={`h-8 md:h-10 px-6 md:px-10 max-md:text-sm ${
-            returning
-              ? edit
-                ? "bg-blue-900 font-medium"
-                : "bg-white/30 font-medium"
-              : edit
-              ? "bg-blue-900/50"
-              : "bg-white/20"
-          } backdrop-blur-2xl duration-200`}
+          className={`${tripButtonBase} ${returning ? activeTripButton : inactiveTripButton}`}
         >
           Return
         </button>
       </div>
-      <div className="flex flex-col gap-1 bg-white rounded-xl rounded-tl-none shadow-md shadow-black/10">
-        <div className="flex flex-col max-md:p-2 p-4 max-md:gap-2 gap-4">
-          {!loading ? (
-            recentSearches &&
-            recentSearches.length > 0 && (
-              <div className="flex flex-col max-md:gap-1 gap-3">
-                <h3 className="ml-1">Recent searches</h3>
-                <div className="flex flex-row w-full overflow-x-scroll py-1 scrollbar-hide items-center gap-2">
-                  {recentSearches?.map((item, index) => (
-                    <RecentSearch
-                      key={index}
-                      index={index}
-                      searchData={item}
-                      setRecentSearches={setRecentSearches}
-                    />
-                  ))}
-                </div>
-              </div>
-            )
-          ) : (
-            <div className="flex flex-col gap-3">
-              <Skeleton className="h-6 w-20" />
-              <div className="flex items-center gap-3 overflow-x-scroll scrollbar-hide">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <Skeleton
+
+      {/* Main search card */}
+      <div className={`flex flex-col gap-0 ${edit ? "bg-white border border-slate-200 rounded-xl rounded-tl-none shadow-[0_8px_32px_rgba(0,0,0,0.12),0_1px_4px_rgba(0,0,0,0.08)]" : "bg-white rounded-xl rounded-tl-none shadow-[0_8px_32px_rgba(0,0,0,0.12),0_1px_4px_rgba(0,0,0,0.08)]"}`}>
+        {/* Recent searches */}
+        {!loading ? (
+          recentSearches.length > 0 && (
+            <div className="flex flex-col gap-2 px-4 pt-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Recent searches
+              </p>
+              <div className="flex flex-row overflow-x-scroll py-1 scrollbar-hide items-center gap-2">
+                {recentSearches.map((item, index) => (
+                  <RecentSearch
                     key={index}
-                    className="shrink-0 h-[60px] w-[220px] rounded-lg"
+                    index={index}
+                    searchData={item}
+                    setRecentSearches={setRecentSearches}
                   />
                 ))}
               </div>
             </div>
-          )}
-          <div className="flex flex-col gap-3">
-            <h3 className="ml-1">Search for flights</h3>
-            <div className="flex flex-col lg:flex-row gap-3">
-              <div className="flex-1 flex-shrink-0 flex flex-col md:flex-row md:items-center">
-                <AirportPicker direction="from" />
-                <button
-                  onClick={() => {
-                    dispatch(setFrom(to));
-                    dispatch(setTo(from));
-                  }}
-                  className="p-2 aspect-square w-fit self-center rounded-full border-[1px] border-gray-200 bg-white -mt-1 -mb-1 md:-ml-1 md:-mr-1 z-10"
-                >
-                  <ArrangeHorizontal
-                    size={16}
-                    color="gray"
-                  />
-                </button>
-                <AirportPicker direction="to" />
-              </div>
-              <div className="flex-1 flex-shrink-0 flex flex-col md:flex-row md:items-center gap-3">
-                <DatePicker />
-                {returning && <DatePicker type="return" />}
-                <PassengerPicker />
-              </div>
+          )
+        ) : (
+          <div className="flex flex-col gap-2 px-4 pt-4">
+            <Skeleton className="h-4 w-24" />
+            <div className="flex items-center gap-2 overflow-x-scroll scrollbar-hide py-1">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="shrink-0 h-14 w-[180px] rounded-lg" />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Search fields */}
+        <div className="flex flex-col p-3 md:p-4 gap-3">
+          <div className="flex flex-col lg:flex-row gap-2">
+            {/* Origin / destination */}
+            <div className="flex-1 flex flex-col md:flex-row items-stretch md:items-center gap-2">
+              <AirportPicker direction="from" />
+              <button
+                onClick={() => {
+                  dispatch(setFrom(to));
+                  dispatch(setTo(from));
+                }}
+                title="Swap airports"
+                className="self-center p-2 rounded-full border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+              >
+                <ArrowLeftRight size={14} className="text-slate-500" />
+              </button>
+              <AirportPicker direction="to" />
+            </div>
+
+            {/* Dates + passengers */}
+            <div className="flex-1 flex flex-col md:flex-row items-stretch md:items-center gap-2">
+              <DatePicker />
+              {returning && <DatePicker type="return" />}
+              <PassengerPicker />
             </div>
           </div>
         </div>
-        <div className="flex flex-row items-center justify-between pl-6">
+
+        {/* Footer row */}
+        <div className="flex items-center justify-between px-3 md:px-4 pb-3 md:pb-4">
           {edit && setSearchVisible && (
             <button
               onClick={() => setSearchVisible(false)}
-              className="text-sm text-gray-500"
+              className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
             >
               Cancel
             </button>
           )}
-          <div className="flex-1 flex max-md:flex-col max-md:items-end flex-row justify-end items-center max-md:gap-2 gap-6">
+          <div className="flex flex-1 items-center justify-end gap-4">
             <button
-              onClick={() => {
-                dispatch(resetSearch());
-              }}
-              className="flex flex-row items-center gap-2 text-blue-400 max-md:mr-3"
+              onClick={() => dispatch(resetSearch())}
+              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-sky-500 transition-colors"
             >
-              <Refresh
-                color="#60a5fa"
-                size={12}
-              />
+              <RotateCcw size={12} />
               Reset
             </button>
             <button
               data-test="search-button"
               disabled={
-                from.city == "" ||
-                to.city == "" ||
-                departureDate == "" ||
-                (returning && returningDate == "")
+                from.city === "" ||
+                to.city === "" ||
+                departureDate === "" ||
+                (returning && returningDate === "")
               }
               onClick={() => {
                 setSearchState(searchState);
                 setBookingState(bookingState);
                 saveRecentSearch(searchState);
-                {
-                  edit
-                    ? router.refresh()
-                    : router.push("/booking/availability");
+                if (edit) {
+                  router.refresh();
+                } else {
+                  router.push("/booking/availability");
                 }
               }}
-              className="py-3 max-md:px-12 px-20 rounded-tl-xl rounded-br-xl bg-blue-500 text-white font-medium max-md:text-sm text-lg disabled:opacity-70"
+              className="flex items-center gap-2 py-2.5 px-6 md:px-10 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-semibold text-sm md:text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
+              <Search size={16} />
               Search Flights
             </button>
           </div>

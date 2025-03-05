@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowDown2 } from "iconsax-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import FlightDestination from "./FlightDestination";
 import FlightIllustration from "./FlightIllustration";
 import FlightClasses from "./FlightClasses";
@@ -16,20 +16,26 @@ const MixedCard = ({
   direction: "going" | "returning";
 }) => {
   const [classesVisible, setClassesVisible] = useState(false);
-
-  // const connected = !!flightInfo.connectingCity;
   const connected = flightInfo.length > 1;
-
   const { passengers } = useSelector((state: RootState) => state.booking);
+
+  const totalPrice = (
+    flightInfo[0].pricing.basic.price +
+    (connected ? flightInfo[1]?.pricing.basic.price ?? 0 : 0)
+  ).toFixed(2);
 
   return (
     <div
-      onClick={() => setClassesVisible((prev) => !prev)}
       data-test="flight-item"
-      className="flex flex-col w-full gap-10 px-4 md:px-8 py-3 md:py-6 bg-white rounded-lg shadow-md shadow-gray-200 relative group cursor-pointer"
+      className="flex flex-col w-full bg-white rounded-xl border border-slate-100 shadow-card hover:shadow-card-hover transition-shadow duration-200 overflow-hidden"
     >
-      <div className="main-info flex flex-col md:flex-row gap-6 md:gap-12 md:items-center">
-        <div className="flex-1 flex flex-row items-center gap-4 max-sm:py-3">
+      {/* Main info row */}
+      <div
+        onClick={() => setClassesVisible((prev) => !prev)}
+        className="flex flex-col md:flex-row gap-4 md:gap-8 md:items-center px-4 md:px-6 py-4 md:py-5 cursor-pointer group"
+      >
+        {/* Route + illustration */}
+        <div className="flex-1 flex items-center gap-4">
           <FlightDestination
             destination={flightInfo[0].from}
             time={flightInfo[0].departure}
@@ -42,38 +48,41 @@ const MixedCard = ({
             side="right"
           />
         </div>
-        <div className="flex flex-row items-center gap-10 max-md:justify-between">
+
+        {/* Price + actions */}
+        <div className="flex items-center justify-between md:justify-end gap-6">
           <DetailsDialog flightInfo={flightInfo} />
-          <div className="flex flex-row items-center gap-4">
+
+          <div className="flex items-center gap-3">
             <div className="flex flex-col items-end">
-              <span className="max-md:text-sm font-medium">
-                {(
-                  flightInfo[0].pricing.basic.price +
-                  (connected ? flightInfo[1]?.pricing.basic.price : 0)
-                ).toFixed(2)}{" "}
-                EUR
+              <span className="text-base md:text-lg font-bold text-slate-800">
+                {totalPrice}{" "}
+                <span className="text-sm font-normal text-slate-400">EUR</span>
               </span>
               {passengers.length > 1 && (
-                <span className="text-[10px] text-gray-500">
-                  *{passengers.length} passengers
+                <span className="text-[11px] text-slate-400">
+                  × {passengers.length} passengers
                 </span>
               )}
+              <span className="text-[11px] text-sky-500 font-medium">from Basic</span>
             </div>
 
-            <div className="p-2 aspect-square rounded-full bg-gray-100">
-              <ArrowDown2
-                size={16}
-                color="gray"
-              />
+            <div className="p-2 rounded-full bg-slate-100 group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors">
+              {classesVisible ? (
+                <ChevronUp size={16} className="text-slate-500 group-hover:text-sky-600" />
+              ) : (
+                <ChevronDown size={16} className="text-slate-500 group-hover:text-sky-600" />
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Expandable classes */}
       {classesVisible && (
-        <FlightClasses
-          direction={direction}
-          flightInfo={flightInfo}
-        />
+        <div className="border-t border-slate-100 px-4 md:px-6 py-4 bg-slate-50/50">
+          <FlightClasses direction={direction} flightInfo={flightInfo} />
+        </div>
       )}
     </div>
   );

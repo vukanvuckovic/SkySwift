@@ -3,6 +3,7 @@ import { useMutation } from "@apollo/client";
 import gql from "graphql-tag";
 import React from "react";
 import { useDispatch } from "react-redux";
+import { toast } from "sonner";
 
 const LogoutButtonWrapper = ({
   children,
@@ -17,17 +18,21 @@ const LogoutButtonWrapper = ({
     }
   `;
 
-  const [logout, { error }] = useMutation(LOG_OUT);
+  const [logout] = useMutation(LOG_OUT);
   const dispatch = useDispatch();
 
   return (
     <button
       onClick={async () => {
-        const { data } = await logout();
-        if (data.logout) {
-          dispatch(resetUser());
-        } else {
-          console.log(error);
+        try {
+          const { data } = await logout();
+          if (data.logout) {
+            dispatch(resetUser());
+          } else {
+            toast.error("Logout failed. Please try again.");
+          }
+        } catch {
+          toast.error("An error occurred during logout.");
         }
       }}
       className={className}

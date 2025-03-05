@@ -1,14 +1,7 @@
 import React from "react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Airplane, Clock, Ticket } from "iconsax-react";
+import { Dialog, DialogClose, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import FlightDestination from "./FlightDestination";
-import { Info, X } from "lucide-react";
+import { Info, X, Clock, Plane, Ticket } from "lucide-react";
 import { formatDate, getTimeDifference } from "@/lib/utils";
 import { Flight } from "@/lib/features/bookingSlice";
 
@@ -18,50 +11,36 @@ const DetailsDialog = ({ flightInfo }: { flightInfo: Flight[] }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div className="flex max-md:text-xs flex-row items-center gap-1 text-blue-500 cursor-pointer">
-          <Info
-            size={14}
-            color="#3b82f6"
-          />
+        <button className="flex items-center gap-1.5 text-xs text-sky-600 font-medium hover:text-sky-700 transition-colors">
+          <Info size={13} />
           Details
-        </div>
+        </button>
       </DialogTrigger>
-      <DialogContent className="flex flex-col gap-6 p-6 pb-10 rounded-xl w-full max-w-[800px]">
-        <DialogClose className="absolute top-4 right-4 outline-none">
-          <X
-            size={16}
-            color="gray"
-          />
+      <DialogContent className="flex flex-col gap-6 p-6 rounded-2xl w-full max-w-[640px]">
+        <DialogClose className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-slate-100 transition-colors outline-none">
+          <X size={16} className="text-slate-400" />
         </DialogClose>
-        <DialogTitle className="hidden">Flight Details</DialogTitle>
-        <h2 className="leading-none">Flight details</h2>
-        <div className="flex flex-col gap-10">
-          <div className="flex flex-col gap-2">
-            <span className="max-md:text-sm font-medium">
+        <DialogTitle className="sr-only">Flight Details</DialogTitle>
+
+        <h2 className="font-bold text-xl text-slate-800 tracking-tight">Flight Details</h2>
+
+        <div className="flex flex-col gap-8">
+          {/* Flight meta */}
+          <div className="flex flex-col gap-3">
+            <p className="text-sm text-slate-500 font-medium">
               {formatDate(new Date(flightInfo[0].departure))}
-            </span>
-            <div className="w-fit flex max-md:flex-col max-md:w-full flex-row items-center max-md:px-3 px-6 max-md:py-2 py-3 max-md:gap-3 gap-4 bg-blue-100 rounded-md text-sm font-medium">
-              <div className="flex flex-row items-center gap-2">
-                <Ticket
-                  size={18}
-                  color="#3b82f6"
-                />
+            </p>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 px-3 py-2 bg-sky-50 border border-sky-100 rounded-lg text-sky-700 font-medium">
+                <Ticket size={14} />
                 <span>SkySwift</span>
               </div>
-              <div className="max-md:w-full max-md:h-[1px] w-[1px] h-6 bg-gray-300" />
-              <div className="flex flex-row items-center gap-2">
-                <Airplane
-                  size={18}
-                  color="#3b82f6"
-                />
+              <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-slate-600 font-medium">
+                <Plane size={14} />
                 <span>VF146</span>
               </div>
-              <div className="max-md:w-full max-md:h-[1px] w-[1px] h-6 bg-gray-300" />
-              <div className="flex flex-row items-center gap-2">
-                <Clock
-                  size={18}
-                  color="#3b82f6"
-                />
+              <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-slate-600 font-medium">
+                <Clock size={14} />
                 <span>
                   {getTimeDifference(
                     new Date(flightInfo[0].departure),
@@ -71,39 +50,34 @@ const DetailsDialog = ({ flightInfo }: { flightInfo: Flight[] }) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-row items-center gap-4">
+
+          {/* Route illustration */}
+          <div className="flex items-center gap-4 px-2">
             <FlightDestination
               destination={flightInfo[0].from}
               time={flightInfo[0].departure}
               side="left"
             />
-            <div className="flex-1 flex flex-row items-center">
-              <div className="flex-1 h-[1px] border-t-[1px] border-dashed border-green-400" />
-              <div className="max-md:w-10 w-14 aspect-square rounded-full flex flex-col justify-center items-center border-[1px] border-green-400 relative">
+
+            <div className="flex-1 flex items-center gap-2">
+              <div className="flex-1 h-px border-t border-dashed border-emerald-400" />
+              <div className="flex flex-col items-center gap-1">
                 {connected && (
-                  <span className="text-gray-500 truncate text-center self-center absolute -top-2 -translate-y-full">
-                    {flightInfo[0].to.city}
+                  <span className="text-xs text-slate-400 font-medium">
+                    via {flightInfo[0].to.city}
                   </span>
                 )}
-                <Airplane
-                  size={32}
-                  color="#3b82f6"
-                  variant="Bold"
-                  className="rotate-90 max-md:hidden"
-                />
-                <Airplane
-                  size={24}
-                  color="#3b82f6"
-                  variant="Bold"
-                  className="rotate-90 md:hidden"
-                />
-                <span className="max-md:text-xs text-gray-500 truncate text-center self-center absolute -bottom-2 translate-y-full">
-                  {flightInfo[0].plane.name +
-                    (connected ? ` + ${flightInfo[1].plane.name}` : "")}
+                <div className="w-10 h-10 rounded-full border-2 border-emerald-400 bg-white flex items-center justify-center">
+                  <Plane size={18} className="text-sky-500 rotate-90" />
+                </div>
+                <span className="text-xs text-slate-400">
+                  {flightInfo[0].plane.name}
+                  {connected && ` + ${flightInfo[1].plane.name}`}
                 </span>
               </div>
-              <div className="flex-1 h-[1px] border-t-[1px] border-dashed border-green-400" />
+              <div className="flex-1 h-px border-t border-dashed border-emerald-400" />
             </div>
+
             <FlightDestination
               destination={flightInfo[flightInfo.length - 1].to}
               time={flightInfo[flightInfo.length - 1].arrival}
