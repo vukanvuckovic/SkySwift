@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Flight Booking App
 
-## Getting Started
+A full-stack flight booking platform where users can search for flights, book seats, and manage their reservations. Built as a portfolio project to demonstrate end-to-end Next.js development with GraphQL and MongoDB.
 
-First, run the development server:
+**Live Demo:** _Add your Vercel URL here_
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Language:** TypeScript
+- **API:** GraphQL (Apollo Server + Apollo Client)
+- **Database:** MongoDB (Mongoose)
+- **Auth:** JWT (HTTP-only cookies)
+- **State:** Redux Toolkit
+- **UI:** Tailwind CSS, Radix UI, Ant Design, GSAP animations
+- **Testing:** Jest, React Testing Library, Cypress
+
+## Key Features
+
+- Search flights by origin, destination, and date
+- Book flights and manage reservations
+- User authentication (register / login)
+- Booking confirmation with animated success screen
+- Fully responsive — mobile, tablet, desktop
+
+## Running Locally
+
+**Prerequisites:** Node.js 18+, a MongoDB Atlas cluster
 
 ```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Fill in CONNECTION_URL and JWT_SECRET in .env.local
+
+# Start the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App runs at [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Demo Credentials
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Register a new account on the sign-up page — no seed data required.
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Description |
+|---|---|
+| `CONNECTION_URL` | MongoDB Atlas connection string |
+| `JWT_SECRET` | Secret key for signing JWT tokens |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev       # Development server
+npm run build     # Production build
+npm test          # Unit tests (Jest)
+npm run test:e2e  # End-to-end tests (Cypress)
+```
