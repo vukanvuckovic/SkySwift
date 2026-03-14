@@ -34,7 +34,7 @@ export const getTimeDifference = (start: string | Date, end: string | Date) => {
   );
   const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
-  let result = [];
+  const result = [];
 
   if (diffDays > 0) result.push(`${diffDays} day${diffDays > 1 ? "s" : ""}`);
   if (diffHours > 0)

@@ -76,7 +76,7 @@ export interface BookingState extends Document {
   passengers: Passenger[];
   contact: string;
   price: number;
-  errors: any;
+  errors: Record<number, Record<string, string>>;
   passengerInfoValid: boolean;
 }
 
@@ -175,7 +175,7 @@ export const bookingSlice = createSlice({
       }
     },
     pushPassenger: (state) => {
-      state.passengers.length < 10 &&
+      if (state.passengers.length < 10) {
         state.passengers.push({
           firstName: "",
           lastName: "",
@@ -187,9 +187,10 @@ export const bookingSlice = createSlice({
           meals: [],
           luggage: [],
         });
+      }
     },
     popPassenger: (state) => {
-      state.passengers.length > 1 && state.passengers.pop();
+      if (state.passengers.length > 1) state.passengers.pop();
     },
     setFirstName: (
       state,
@@ -292,7 +293,7 @@ export const bookingSlice = createSlice({
       state,
       action: PayloadAction<{ meal: AdditionalOption; index: number }>
     ) => {
-      const { meal, index } = action.payload;
+      const { index } = action.payload;
       const passenger = state.passengers[index];
 
       if (!passenger) return;
@@ -326,9 +327,6 @@ export const bookingSlice = createSlice({
 
       if (!passenger) return;
 
-      // if (!passenger.luggage) {
-      //   passenger.luggage = [luggage];
-      // } else {
       const luggageIndex = passenger.luggage.findIndex(
         (item) => item.flight.id === luggage.flight.id
       );

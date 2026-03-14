@@ -1,4 +1,4 @@
-import { bookingSlice, BookingState } from "./bookingSlice";
+import { bookingSlice } from "./bookingSlice";
 
 const initialState = bookingSlice.getInitialState();
 

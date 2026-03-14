@@ -1,4 +1,4 @@
-import { redirect, useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { toast } from "sonner";
 
 export const handleVerify = async (id: string, contact: string) => {
