@@ -18,7 +18,7 @@ export default function StoreProvider({
   }
 
   if (typeof window !== "undefined" && window.Cypress) {
-    (window as any).store = storeRef.current;
+    (window as unknown as { store: AppStore }).store = storeRef.current;
   }
 
   return <Provider store={storeRef.current}>{children}</Provider>;

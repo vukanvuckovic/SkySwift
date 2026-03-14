@@ -6,7 +6,7 @@ import {
   removeSeat,
 } from "@/lib/features/bookingSlice";
 import { RootState } from "@/lib/store";
-import { ArrowRight, ChevronDown, ChevronUp, User, X } from "lucide-react";
+import { ChevronDown, ChevronUp, User, X } from "lucide-react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";

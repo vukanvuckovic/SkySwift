@@ -7,12 +7,6 @@ import { bookingsResolver } from "./resolvers/bookingsResolver";
 import { mergeTypeDefs, mergeResolvers } from "@graphql-tools/merge";
 import { userTypeDefs } from "./typeDefs/userTypeDefs";
 import { userResolver } from "./resolvers/userResolver";
-import { DateScalar } from "./scalars/dateScalar";
-
-const customScalars = {
-  Date: DateScalar,
-};
-
 const server = new ApolloServer({
   typeDefs: mergeTypeDefs([
     "scalar Date",

@@ -16,7 +16,7 @@ export async function GET() {
     if (!userJwt)
       return NextResponse.json({ error: "No session" }, { status: 400 });
 
-    const decoded: any = jwt.verify(userJwt.value, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(userJwt.value, process.env.JWT_SECRET!) as { id: string };
 
     const userWithBookings = await User.findById(decoded.id).populate({
       path: "bookings",
@@ -37,8 +37,8 @@ export async function GET() {
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching bookings:", error);
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ error: (error as Error).message }, { status: 400 });
   }
 }

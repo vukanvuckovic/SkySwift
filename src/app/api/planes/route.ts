@@ -33,7 +33,7 @@ export async function DELETE() {
     await connectDB();
     await Plane.deleteMany({}); // Deletes all planes
     return NextResponse.json({ message: "All planes deleted successfully" });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to delete planes" },
       { status: 500 }

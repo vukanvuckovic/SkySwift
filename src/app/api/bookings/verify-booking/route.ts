@@ -56,7 +56,7 @@ export async function GET() {
       return redirect("/");
     }
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { bookingId: string };
 
     const id = decoded.bookingId;
 

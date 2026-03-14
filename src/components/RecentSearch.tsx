@@ -9,11 +9,9 @@ import { useDispatch } from "react-redux";
 const RecentSearch = ({
   searchData,
   setRecentSearches,
-  index,
 }: {
   searchData: SearchState;
   setRecentSearches: (fn: (prev: SearchState[]) => SearchState[]) => void;
-  index: number;
 }) => {
   const dispatch = useDispatch();
 

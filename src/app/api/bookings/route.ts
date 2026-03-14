@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     const userJwt = (await cookies()).get("session");
 
     if (userJwt) {
-      const decoded: any = jwt.verify(userJwt.value, process.env.JWT_SECRET!);
+      const decoded = jwt.verify(userJwt.value, process.env.JWT_SECRET!) as { id: string };
       await User.findByIdAndUpdate(
         decoded.id,
         { $push: { bookings: newBooking._id } },
@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
       { message: "Booking created.", newBooking },
       { status: 201 }
     );
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 400 });
   }
 }
 
@@ -135,7 +135,7 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.json({ booking }, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

@@ -6,7 +6,7 @@ import Plane from "@/mongodb/models/Plane";
 export const flightsResolvers = {
   Query: {
     searchFlights: async (
-      _: any,
+      _: unknown,
       { from, to, returning }: { from: string; to: string; returning: boolean }
     ) => {
       try {
@@ -29,7 +29,7 @@ export const flightsResolvers = {
           model: Plane,
         });
 
-        let connectedFlights = <BookingFlight[][]>[];
+        const connectedFlights = <BookingFlight[][]>[];
 
         flightsFrom.forEach((flightFrom) => {
           flightsTo.forEach((flightTo) => {
@@ -50,7 +50,7 @@ export const flightsResolvers = {
         });
 
         let returningDirectFlights = [];
-        let returningConnectedFlights = <BookingFlight[][]>[];
+        const returningConnectedFlights = <BookingFlight[][]>[];
 
         if (returning) {
           returningDirectFlights = await Flight.find({
@@ -99,8 +99,8 @@ export const flightsResolvers = {
           returningDirectFlights,
           returningConnectedFlights,
         };
-      } catch (error: any) {
-        throw new Error("Error getting flights: " + error.message);
+      } catch (error: unknown) {
+        throw new Error("Error getting flights: " + (error as Error).message);
       }
     },
   },

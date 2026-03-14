@@ -42,7 +42,7 @@ const FlightSelector = ({
                 flightObject.flight._id === selectedFlight?.flight._id
               }
               key={flightObject.flight.id}
-              value={flightObject as any}
+              value={flightObject as unknown as string}
             >
               <div className="flex items-center gap-2">
                 <span>{flightObject.flight.from.city}</span>

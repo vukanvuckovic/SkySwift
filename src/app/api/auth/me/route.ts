@@ -15,7 +15,7 @@ export async function GET() {
       return NextResponse.json({ message: "No session" }, { status: 401 });
     }
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
 
     const user = await User.findById(decoded.id).select("-password");
 

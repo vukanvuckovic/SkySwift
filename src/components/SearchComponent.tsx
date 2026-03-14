@@ -20,7 +20,7 @@ import {
 import DatePicker from "./DatePicker";
 import RecentSearch from "./RecentSearch";
 import { Skeleton } from "./ui/skeleton";
-import { ArrowLeftRight, PlaneTakeoff, RotateCcw, Search } from "lucide-react";
+import { ArrowLeftRight, RotateCcw, Search } from "lucide-react";
 
 const SearchComponent = ({
   edit = false,
@@ -91,7 +91,6 @@ const SearchComponent = ({
                 {recentSearches.map((item, index) => (
                   <RecentSearch
                     key={index}
-                    index={index}
                     searchData={item}
                     setRecentSearches={setRecentSearches}
                   />

@@ -100,9 +100,9 @@ export async function GET(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { message: "Error getting flights", error: error.message },
+      { message: "Error getting flights", error: (error as Error).message },
       { status: 500 }
     );
   }
@@ -113,7 +113,7 @@ export async function DELETE() {
     await connectDB();
     await Flight.deleteMany({}); // Deletes all planes
     return NextResponse.json({ message: "All flights deleted successfully" });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to delete planes" },
       { status: 500 }

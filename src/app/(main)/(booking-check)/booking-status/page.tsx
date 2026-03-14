@@ -142,7 +142,7 @@ const BookingStatus = () => {
             <Plane size={24} className="text-slate-400" />
           </div>
           <p className="text-slate-500 font-medium">No booking found</p>
-          <p className="text-sm text-slate-400">We couldn't find any active booking for your account.</p>
+          <p className="text-sm text-slate-400">We couldn&apos;t find any active booking for your account.</p>
         </div>
       )}
     </div>
