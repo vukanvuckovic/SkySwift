@@ -2,7 +2,7 @@
 
 A full-stack flight booking platform where users can search for flights, book seats, and manage their reservations. Built as a portfolio project to demonstrate end-to-end Next.js development with GraphQL and MongoDB.
 
-**Live Demo:** _Add your Vercel URL here_
+**Live Demo:** [https://skyswift-psi.vercel.app/](https://skyswift-psi.vercel.app/)
 
 ---
 
